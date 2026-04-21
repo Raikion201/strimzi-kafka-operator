@@ -145,6 +145,7 @@
         <module>user-operator</module>
         <module>kafka-init</module>
         <module>certificate-manager</module>
+        <module>rest-listener</module>
         <module>systemtest</module>
     </modules>
 
@@ -203,6 +204,11 @@
             <dependency>
                 <groupId>io.strimzi</groupId>
                 <artifactId>certificate-manager</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.strimzi</groupId>
+                <artifactId>rest-listener</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

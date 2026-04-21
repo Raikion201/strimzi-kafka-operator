@@ -13,7 +13,9 @@ public enum KafkaListenerType {
     LOADBALANCER,
     NODEPORT,
     INGRESS,
-    CLUSTER_IP;
+    CLUSTER_IP,
+    HTTP,
+    HTTPS;
 
     @JsonCreator
     public static KafkaListenerType forValue(String value) {
@@ -30,6 +32,10 @@ public enum KafkaListenerType {
                 return INGRESS;
             case "cluster-ip":
                 return CLUSTER_IP;
+            case "http":
+                return HTTP;
+            case "https":
+                return HTTPS;
             default:
                 return null;
         }
@@ -50,6 +56,10 @@ public enum KafkaListenerType {
                 return "ingress";
             case CLUSTER_IP:
                 return "cluster-ip";
+            case HTTP:
+                return "http";
+            case HTTPS:
+                return "https";
             default:
                 return null;
         }
