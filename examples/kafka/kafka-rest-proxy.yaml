@@ -1,0 +1,91 @@
+# Minimal example — a Strimzi-managed Kafka cluster that also exposes the
+# embedded HTTP REST proxy baked into the broker JVM. Requires a Kafka image
+# built from github.com/Raikion201/kafka (branch rest-proxy); see
+# rest-listener/BUILDING_THE_KAFKA_IMAGE.md for the recipe.
+#
+# After `kubectl apply -f kafka-rest-proxy.yaml` and a successful rollout:
+#
+#   LB=$(kubectl get svc my-cluster-kafka-rest-bootstrap \
+#        -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+#   curl -u alice:s3cret -H 'Content-Type: application/json' \
+#        -d '{"key":"k","value":"hello"}' \
+#        http://$LB:8080/v1/topics/mytopic
+#   # → {"partition":N,"offset":N}
+#
+# The LoadBalancer is provisioned automatically by your cloud provider
+# (GKE/EKS/AKS) or by MetalLB / `minikube tunnel` on local clusters.
+---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaNodePool
+metadata:
+  name: controller
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  replicas: 1
+  roles:
+    - controller
+  storage:
+    type: jbod
+    volumes:
+      - id: 0
+        type: persistent-claim
+        size: 10Gi
+        kraftMetadata: shared
+---
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaNodePool
+metadata:
+  name: broker
+  labels:
+    strimzi.io/cluster: my-cluster
+spec:
+  replicas: 1
+  roles:
+    - broker
+  storage:
+    type: jbod
+    volumes:
+      - id: 0
+        type: persistent-claim
+        size: 10Gi
+---
+apiVersion: kafka.strimzi.io/v1
+kind: Kafka
+metadata:
+  name: my-cluster
+spec:
+  kafka:
+    # Must be an entry in kafka-versions.yaml with supports-rest-proxy: true.
+    # Using any other version produces a validation error at admission.
+    version: 4.4.0-rest-proxy
+    metadataVersion: 4.2-IV1
+    listeners:
+      # Binary Kafka protocol — internal only, for kafka-console-producer etc.
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      # The embedded REST proxy. Strimzi creates a Service type: LoadBalancer
+      # for this listener automatically.
+      - name: rest
+        port: 8080
+        type: http
+        tls: false
+    config:
+      # HTTP Basic Auth credentials for the REST proxy.
+      # For production use a Secret + listener-level basicCredentials field
+      # (planned follow-up); inline here for example readability.
+      http.rest.basic.credentials: alice:s3cret
+      http.rest.executor.threads: 8
+      # The OpenAPI spec / Swagger UI are opt-in because they're served without
+      # authentication. Leave off for production.
+      # http.rest.swagger-ui.enabled: true
+      offsets.topic.replication.factor: 1
+      transaction.state.log.replication.factor: 1
+      transaction.state.log.min.isr: 1
+      default.replication.factor: 1
+      min.insync.replicas: 1
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
