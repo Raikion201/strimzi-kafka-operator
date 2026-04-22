@@ -1,0 +1,1584 @@
+{
+  "configs" : {
+    "add.partitions.to.txn.retry.backoff.max.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "add.partitions.to.txn.retry.backoff.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "advertised.listeners" : {
+      "items" : [ ],
+      "scope" : "READ_ONLY",
+      "type" : "LIST"
+    },
+    "alter.config.policy.class.name" : {
+      "scope" : "READ_ONLY",
+      "type" : "CLASS"
+    },
+    "alter.log.dirs.replication.quota.window.num" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "alter.log.dirs.replication.quota.window.size.seconds" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "authorizer.class.name" : {
+      "pattern" : ".+",
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "auto.create.topics.enable" : {
+      "scope" : "READ_ONLY",
+      "type" : "BOOLEAN"
+    },
+    "auto.leader.rebalance.enable" : {
+      "scope" : "READ_ONLY",
+      "type" : "BOOLEAN"
+    },
+    "background.threads" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "broker.heartbeat.interval.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "broker.id" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "broker.rack" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "broker.session.timeout.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "client.quota.callback.class" : {
+      "scope" : "READ_ONLY",
+      "type" : "CLASS"
+    },
+    "compression.gzip.level" : {
+      "pattern" : "[1-9]{1}|-1",
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "compression.lz4.level" : {
+      "maximum" : 17,
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "compression.type" : {
+      "enum" : [ "uncompressed", "zstd", "lz4", "snappy", "gzip", "producer" ],
+      "scope" : "CLUSTER_WIDE",
+      "type" : "STRING"
+    },
+    "compression.zstd.level" : {
+      "maximum" : 22,
+      "minimum" : -131072,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "config.providers" : {
+      "items" : [ ],
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LIST"
+    },
+    "connection.failed.authentication.delay.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "connections.max.idle.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "connections.max.reauth.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "controlled.shutdown.enable" : {
+      "scope" : "READ_ONLY",
+      "type" : "BOOLEAN"
+    },
+    "controller.listener.names" : {
+      "items" : [ ],
+      "scope" : "READ_ONLY",
+      "type" : "LIST"
+    },
+    "controller.performance.always.log.threshold.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "controller.performance.sample.period.ms" : {
+      "minimum" : 100,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "controller.quorum.append.linger.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "controller.quorum.auto.join.enable" : {
+      "scope" : "READ_ONLY",
+      "type" : "BOOLEAN"
+    },
+    "controller.quorum.bootstrap.servers" : {
+      "scope" : "READ_ONLY",
+      "type" : "LIST"
+    },
+    "controller.quorum.election.backoff.max.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "controller.quorum.election.timeout.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "controller.quorum.fetch.timeout.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "controller.quorum.request.timeout.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "controller.quorum.retry.backoff.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "controller.quorum.voters" : {
+      "scope" : "READ_ONLY",
+      "type" : "LIST"
+    },
+    "controller.quota.window.num" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "controller.quota.window.size.seconds" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "controller.socket.timeout.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "create.topic.policy.class.name" : {
+      "scope" : "READ_ONLY",
+      "type" : "CLASS"
+    },
+    "default.replication.factor" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "delegation.token.expiry.check.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "delegation.token.expiry.time.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "delegation.token.max.lifetime.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "delegation.token.secret.key" : {
+      "scope" : "READ_ONLY",
+      "type" : "PASSWORD"
+    },
+    "delete.records.purgatory.purge.interval.requests" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "delete.topic.enable" : {
+      "scope" : "READ_ONLY",
+      "type" : "BOOLEAN"
+    },
+    "early.start.listeners" : {
+      "items" : [ ],
+      "scope" : "READ_ONLY",
+      "type" : "LIST"
+    },
+    "fetch.max.bytes" : {
+      "minimum" : 1024,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "fetch.purgatory.purge.interval.requests" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.consumer.assignors" : {
+      "items" : [ ],
+      "scope" : "READ_ONLY",
+      "type" : "LIST"
+    },
+    "group.consumer.heartbeat.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.consumer.max.heartbeat.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.consumer.max.session.timeout.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.consumer.max.size" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.consumer.migration.policy" : {
+      "caseInsensitive" : true,
+      "enum" : [ "DISABLED", "DOWNGRADE", "UPGRADE", "BIDIRECTIONAL" ],
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "group.consumer.min.heartbeat.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.consumer.min.session.timeout.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.consumer.regex.refresh.interval.ms" : {
+      "minimum" : 10000,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.consumer.session.timeout.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.coordinator.append.linger.ms" : {
+      "minimum" : -1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.coordinator.rebalance.protocols" : {
+      "items" : [ "consumer", "classic", "share", "streams" ],
+      "scope" : "READ_ONLY",
+      "type" : "LIST"
+    },
+    "group.coordinator.threads" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.initial.rebalance.delay.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.max.session.timeout.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.max.size" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.min.session.timeout.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.share.assignors" : {
+      "items" : [ ],
+      "scope" : "READ_ONLY",
+      "type" : "LIST"
+    },
+    "group.share.delivery.count.limit" : {
+      "maximum" : 10,
+      "minimum" : 2,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.share.enable" : {
+      "scope" : "READ_ONLY",
+      "type" : "BOOLEAN"
+    },
+    "group.share.heartbeat.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.share.initialize.retry.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.share.max.heartbeat.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.share.max.record.lock.duration.ms" : {
+      "maximum" : 3600000,
+      "minimum" : 30000,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.share.max.session.timeout.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.share.max.share.sessions" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.share.max.size" : {
+      "maximum" : 1000,
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.share.min.heartbeat.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.share.min.record.lock.duration.ms" : {
+      "maximum" : 30000,
+      "minimum" : 1000,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.share.min.session.timeout.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.share.partition.max.record.locks" : {
+      "maximum" : 10000,
+      "minimum" : 100,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.share.persister.class.name" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "group.share.record.lock.duration.ms" : {
+      "maximum" : 3600000,
+      "minimum" : 1000,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.share.session.timeout.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.streams.heartbeat.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.streams.initial.rebalance.delay.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.streams.max.heartbeat.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.streams.max.session.timeout.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.streams.max.size" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.streams.max.standby.replicas" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.streams.min.heartbeat.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.streams.min.session.timeout.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.streams.num.standby.replicas" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "group.streams.session.timeout.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "initial.broker.registration.timeout.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "inter.broker.listener.name" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "internal.metadata.delete.delay.millis" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "internal.metadata.log.segment.bytes" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "internal.metadata.max.batch.size.in.bytes" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "internal.metadata.max.fetch.size.in.bytes" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "kafka.metrics.polling.interval.secs" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "kafka.metrics.reporters" : {
+      "items" : [ ],
+      "scope" : "READ_ONLY",
+      "type" : "LIST"
+    },
+    "leader.imbalance.check.interval.seconds" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "listener.security.protocol.map" : {
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "listeners" : {
+      "items" : [ ],
+      "scope" : "PER_BROKER",
+      "type" : "LIST"
+    },
+    "log.cleaner.backoff.ms" : {
+      "minimum" : 0,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.cleaner.dedupe.buffer.size" : {
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.cleaner.delete.retention.ms" : {
+      "minimum" : 0,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.cleaner.enable" : {
+      "scope" : "READ_ONLY",
+      "type" : "BOOLEAN"
+    },
+    "log.cleaner.io.buffer.load.factor" : {
+      "scope" : "CLUSTER_WIDE",
+      "type" : "DOUBLE"
+    },
+    "log.cleaner.io.buffer.size" : {
+      "minimum" : 0,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "log.cleaner.io.max.bytes.per.second" : {
+      "scope" : "CLUSTER_WIDE",
+      "type" : "DOUBLE"
+    },
+    "log.cleaner.max.compaction.lag.ms" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.cleaner.min.cleanable.ratio" : {
+      "maximum" : 1,
+      "minimum" : 0,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "DOUBLE"
+    },
+    "log.cleaner.min.compaction.lag.ms" : {
+      "minimum" : 0,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.cleaner.threads" : {
+      "minimum" : 0,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "log.cleanup.policy" : {
+      "items" : [ "compact", "delete" ],
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LIST"
+    },
+    "log.dir" : {
+      "items" : [ ],
+      "scope" : "READ_ONLY",
+      "type" : "LIST"
+    },
+    "log.dir.failure.timeout.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "log.dirs" : {
+      "items" : [ ],
+      "scope" : "READ_ONLY",
+      "type" : "LIST"
+    },
+    "log.flush.interval.messages" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.flush.interval.ms" : {
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.flush.offset.checkpoint.interval.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "log.flush.scheduler.interval.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "log.flush.start.offset.checkpoint.interval.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "log.index.interval.bytes" : {
+      "minimum" : 0,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "log.index.size.max.bytes" : {
+      "minimum" : 4,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "log.initial.task.delay.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "log.local.retention.bytes" : {
+      "minimum" : -2,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.local.retention.ms" : {
+      "minimum" : -2,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.message.timestamp.after.max.ms" : {
+      "minimum" : 0,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.message.timestamp.before.max.ms" : {
+      "minimum" : 0,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.message.timestamp.type" : {
+      "enum" : [ "CreateTime", "LogAppendTime" ],
+      "scope" : "CLUSTER_WIDE",
+      "type" : "STRING"
+    },
+    "log.preallocate" : {
+      "scope" : "CLUSTER_WIDE",
+      "type" : "BOOLEAN"
+    },
+    "log.retention.bytes" : {
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.retention.check.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "log.retention.hours" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "log.retention.minutes" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "log.retention.ms" : {
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.roll.hours" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "log.roll.jitter.hours" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "log.roll.jitter.ms" : {
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.roll.ms" : {
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "log.segment.bytes" : {
+      "minimum" : 1048576,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "log.segment.delete.delay.ms" : {
+      "minimum" : 0,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "max.connection.creation.rate" : {
+      "minimum" : 0,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "max.connections" : {
+      "minimum" : 0,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "max.connections.per.ip" : {
+      "minimum" : 0,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "max.connections.per.ip.overrides" : {
+      "scope" : "CLUSTER_WIDE",
+      "type" : "STRING"
+    },
+    "max.incremental.fetch.session.cache.slots" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "max.request.partition.size.limit" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "message.max.bytes" : {
+      "minimum" : 0,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "metadata.log.dir" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "metadata.log.max.record.bytes.between.snapshots" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "metadata.log.max.snapshot.interval.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "metadata.log.segment.bytes" : {
+      "minimum" : 8388608,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "metadata.log.segment.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "metadata.max.idle.interval.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "metadata.max.retention.bytes" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "metadata.max.retention.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "metric.reporters" : {
+      "items" : [ ],
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LIST"
+    },
+    "metrics.num.samples" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "metrics.recording.level" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "metrics.sample.window.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "min.insync.replicas" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "node.id" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "num.io.threads" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "num.network.threads" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "num.partitions" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "num.recovery.threads.per.data.dir" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "num.replica.alter.log.dirs.threads" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "num.replica.fetchers" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "offset.metadata.max.bytes" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "offsets.commit.timeout.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "offsets.load.buffer.size" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "offsets.retention.check.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "offsets.retention.minutes" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "offsets.topic.compression.codec" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "offsets.topic.num.partitions" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "offsets.topic.replication.factor" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "SHORT"
+    },
+    "offsets.topic.segment.bytes" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "principal.builder.class" : {
+      "scope" : "PER_BROKER",
+      "type" : "CLASS"
+    },
+    "process.roles" : {
+      "items" : [ "broker", "controller" ],
+      "scope" : "READ_ONLY",
+      "type" : "LIST"
+    },
+    "producer.id.expiration.check.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "producer.id.expiration.ms" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "producer.purgatory.purge.interval.requests" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "prometheus.metrics.reporter.allowlist" : {
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LIST"
+    },
+    "queued.max.request.bytes" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "queued.max.requests" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "quota.window.num" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "quota.window.size.seconds" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "remote.fetch.max.wait.ms" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "remote.list.offsets.request.timeout.ms" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "remote.log.index.file.cache.total.size.bytes" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "remote.log.manager.copier.thread.pool.size" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "remote.log.manager.copy.max.bytes.per.second" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "remote.log.manager.copy.quota.window.num" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "remote.log.manager.copy.quota.window.size.seconds" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "remote.log.manager.expiration.thread.pool.size" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "remote.log.manager.fetch.max.bytes.per.second" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "LONG"
+    },
+    "remote.log.manager.fetch.quota.window.num" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "remote.log.manager.fetch.quota.window.size.seconds" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "remote.log.manager.follower.thread.pool.size" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "remote.log.manager.task.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "remote.log.manager.task.retry.backoff.max.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "remote.log.manager.task.retry.backoff.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "remote.log.manager.task.retry.jitter" : {
+      "maximum" : 0.5,
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "DOUBLE"
+    },
+    "remote.log.manager.thread.pool.size" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "remote.log.metadata.custom.metadata.max.bytes" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "remote.log.metadata.manager.class.name" : {
+      "pattern" : ".+",
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "remote.log.metadata.manager.class.path" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "remote.log.metadata.manager.impl.prefix" : {
+      "pattern" : ".+",
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "remote.log.metadata.manager.listener.name" : {
+      "pattern" : ".+",
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "remote.log.reader.max.pending.tasks" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "remote.log.reader.threads" : {
+      "minimum" : 1,
+      "scope" : "CLUSTER_WIDE",
+      "type" : "INT"
+    },
+    "remote.log.storage.manager.class.name" : {
+      "pattern" : ".+",
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "remote.log.storage.manager.class.path" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "remote.log.storage.manager.impl.prefix" : {
+      "pattern" : ".+",
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "remote.log.storage.system.enable" : {
+      "scope" : "READ_ONLY",
+      "type" : "BOOLEAN"
+    },
+    "replica.fetch.backoff.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "replica.fetch.max.bytes" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "replica.fetch.min.bytes" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "replica.fetch.response.max.bytes" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "replica.fetch.wait.max.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "replica.high.watermark.checkpoint.interval.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "replica.lag.time.max.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "replica.selector.class" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "replica.socket.receive.buffer.bytes" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "replica.socket.timeout.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "replication.quota.window.num" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "replication.quota.window.size.seconds" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "request.timeout.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "sasl.client.callback.handler.class" : {
+      "scope" : "READ_ONLY",
+      "type" : "CLASS"
+    },
+    "sasl.enabled.mechanisms" : {
+      "items" : [ ],
+      "scope" : "PER_BROKER",
+      "type" : "LIST"
+    },
+    "sasl.jaas.config" : {
+      "scope" : "PER_BROKER",
+      "type" : "PASSWORD"
+    },
+    "sasl.kerberos.kinit.cmd" : {
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "sasl.kerberos.min.time.before.relogin" : {
+      "scope" : "PER_BROKER",
+      "type" : "LONG"
+    },
+    "sasl.kerberos.principal.to.local.rules" : {
+      "items" : [ ],
+      "scope" : "PER_BROKER",
+      "type" : "LIST"
+    },
+    "sasl.kerberos.service.name" : {
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "sasl.kerberos.ticket.renew.jitter" : {
+      "scope" : "PER_BROKER",
+      "type" : "DOUBLE"
+    },
+    "sasl.kerberos.ticket.renew.window.factor" : {
+      "scope" : "PER_BROKER",
+      "type" : "DOUBLE"
+    },
+    "sasl.login.callback.handler.class" : {
+      "scope" : "READ_ONLY",
+      "type" : "CLASS"
+    },
+    "sasl.login.class" : {
+      "scope" : "READ_ONLY",
+      "type" : "CLASS"
+    },
+    "sasl.login.connect.timeout.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "sasl.login.read.timeout.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "sasl.login.refresh.buffer.seconds" : {
+      "scope" : "PER_BROKER",
+      "type" : "SHORT"
+    },
+    "sasl.login.refresh.min.period.seconds" : {
+      "scope" : "PER_BROKER",
+      "type" : "SHORT"
+    },
+    "sasl.login.refresh.window.factor" : {
+      "scope" : "PER_BROKER",
+      "type" : "DOUBLE"
+    },
+    "sasl.login.refresh.window.jitter" : {
+      "scope" : "PER_BROKER",
+      "type" : "DOUBLE"
+    },
+    "sasl.login.retry.backoff.max.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "sasl.login.retry.backoff.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "sasl.mechanism.controller.protocol" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.mechanism.inter.broker.protocol" : {
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "sasl.oauthbearer.assertion.algorithm" : {
+      "caseInsensitive" : true,
+      "enum" : [ "ES256", "RS256" ],
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.oauthbearer.assertion.claim.aud" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.oauthbearer.assertion.claim.exp.seconds" : {
+      "maximum" : 86400,
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "sasl.oauthbearer.assertion.claim.iss" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.oauthbearer.assertion.claim.jti.include" : {
+      "scope" : "READ_ONLY",
+      "type" : "BOOLEAN"
+    },
+    "sasl.oauthbearer.assertion.claim.nbf.seconds" : {
+      "maximum" : 3600,
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "sasl.oauthbearer.assertion.claim.sub" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.oauthbearer.assertion.file" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.oauthbearer.assertion.private.key.file" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.oauthbearer.assertion.private.key.passphrase" : {
+      "scope" : "READ_ONLY",
+      "type" : "PASSWORD"
+    },
+    "sasl.oauthbearer.assertion.template.file" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.oauthbearer.client.credentials.client.id" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.oauthbearer.client.credentials.client.secret" : {
+      "scope" : "READ_ONLY",
+      "type" : "PASSWORD"
+    },
+    "sasl.oauthbearer.clock.skew.seconds" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "sasl.oauthbearer.expected.audience" : {
+      "items" : [ ],
+      "scope" : "READ_ONLY",
+      "type" : "LIST"
+    },
+    "sasl.oauthbearer.expected.issuer" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.oauthbearer.jwks.endpoint.refresh.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "sasl.oauthbearer.jwks.endpoint.retry.backoff.max.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "sasl.oauthbearer.jwks.endpoint.retry.backoff.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "sasl.oauthbearer.jwks.endpoint.url" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.oauthbearer.jwt.retriever.class" : {
+      "scope" : "READ_ONLY",
+      "type" : "CLASS"
+    },
+    "sasl.oauthbearer.jwt.validator.class" : {
+      "scope" : "READ_ONLY",
+      "type" : "CLASS"
+    },
+    "sasl.oauthbearer.scope" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.oauthbearer.scope.claim.name" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.oauthbearer.sub.claim.name" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.oauthbearer.token.endpoint.url" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "sasl.server.callback.handler.class" : {
+      "scope" : "READ_ONLY",
+      "type" : "CLASS"
+    },
+    "sasl.server.max.receive.size" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "security.inter.broker.protocol" : {
+      "enum" : [ "PLAINTEXT", "SSL", "SASL_PLAINTEXT", "SASL_SSL" ],
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "security.providers" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "server.max.startup.time.ms" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "share.coordinator.append.linger.ms" : {
+      "minimum" : -1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "share.coordinator.cold.partition.snapshot.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "share.coordinator.load.buffer.size" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "share.coordinator.snapshot.update.records.per.snapshot" : {
+      "minimum" : 0,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "share.coordinator.state.topic.compression.codec" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "share.coordinator.state.topic.min.isr" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "SHORT"
+    },
+    "share.coordinator.state.topic.num.partitions" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "share.coordinator.state.topic.prune.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "share.coordinator.state.topic.replication.factor" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "SHORT"
+    },
+    "share.coordinator.state.topic.segment.bytes" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "share.coordinator.threads" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "share.coordinator.write.timeout.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "share.fetch.purgatory.purge.interval.requests" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "socket.connection.setup.timeout.max.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "socket.connection.setup.timeout.ms" : {
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "socket.listen.backlog.size" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "socket.receive.buffer.bytes" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "socket.request.max.bytes" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "socket.send.buffer.bytes" : {
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "ssl.allow.dn.changes" : {
+      "scope" : "READ_ONLY",
+      "type" : "BOOLEAN"
+    },
+    "ssl.allow.san.changes" : {
+      "scope" : "READ_ONLY",
+      "type" : "BOOLEAN"
+    },
+    "ssl.cipher.suites" : {
+      "items" : [ ],
+      "scope" : "PER_BROKER",
+      "type" : "LIST"
+    },
+    "ssl.client.auth" : {
+      "enum" : [ "required", "requested", "none" ],
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "ssl.enabled.protocols" : {
+      "items" : [ ],
+      "scope" : "PER_BROKER",
+      "type" : "LIST"
+    },
+    "ssl.endpoint.identification.algorithm" : {
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "ssl.engine.factory.class" : {
+      "scope" : "PER_BROKER",
+      "type" : "CLASS"
+    },
+    "ssl.key.password" : {
+      "scope" : "PER_BROKER",
+      "type" : "PASSWORD"
+    },
+    "ssl.keymanager.algorithm" : {
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "ssl.keystore.certificate.chain" : {
+      "scope" : "PER_BROKER",
+      "type" : "PASSWORD"
+    },
+    "ssl.keystore.key" : {
+      "scope" : "PER_BROKER",
+      "type" : "PASSWORD"
+    },
+    "ssl.keystore.location" : {
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "ssl.keystore.password" : {
+      "scope" : "PER_BROKER",
+      "type" : "PASSWORD"
+    },
+    "ssl.keystore.type" : {
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "ssl.principal.mapping.rules" : {
+      "scope" : "READ_ONLY",
+      "type" : "STRING"
+    },
+    "ssl.protocol" : {
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "ssl.provider" : {
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "ssl.secure.random.implementation" : {
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "ssl.trustmanager.algorithm" : {
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "ssl.truststore.certificates" : {
+      "scope" : "PER_BROKER",
+      "type" : "PASSWORD"
+    },
+    "ssl.truststore.location" : {
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "ssl.truststore.password" : {
+      "scope" : "PER_BROKER",
+      "type" : "PASSWORD"
+    },
+    "ssl.truststore.type" : {
+      "scope" : "PER_BROKER",
+      "type" : "STRING"
+    },
+    "telemetry.max.bytes" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "transaction.abort.timed.out.transaction.cleanup.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "transaction.max.timeout.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "transaction.partition.verification.enable" : {
+      "scope" : "CLUSTER_WIDE",
+      "type" : "BOOLEAN"
+    },
+    "transaction.remove.expired.transaction.cleanup.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "transaction.state.log.load.buffer.size" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "transaction.state.log.min.isr" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "transaction.state.log.num.partitions" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "transaction.state.log.replication.factor" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "SHORT"
+    },
+    "transaction.state.log.segment.bytes" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "transaction.two.phase.commit.enable" : {
+      "scope" : "READ_ONLY",
+      "type" : "BOOLEAN"
+    },
+    "transactional.id.expiration.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "INT"
+    },
+    "unclean.leader.election.enable" : {
+      "scope" : "CLUSTER_WIDE",
+      "type" : "BOOLEAN"
+    },
+    "unclean.leader.election.interval.ms" : {
+      "minimum" : 1,
+      "scope" : "READ_ONLY",
+      "type" : "LONG"
+    },
+    "unstable.api.versions.enable" : {
+      "scope" : "READ_ONLY",
+      "type" : "BOOLEAN"
+    },
+    "unstable.feature.versions.enable" : {
+      "scope" : "READ_ONLY",
+      "type" : "BOOLEAN"
+    }
+  },
+  "version" : "4.4.0"
+}

@@ -21,6 +21,10 @@ COPY scripts/ tmp/bin/ bin/
 
 COPY tmp/lib/ lib/
 
+# Fix Windows-Maven classpath separator bug: Maven on Windows generates `;`
+# and `\` in shell scripts destined for Linux containers.
+RUN sed -i '/^export JAVA_CLASSPATH=/ { s/;/:/g; s/\\/\//g }' bin/cluster_operator_run.sh || true
+
 RUN mkdir -p ${STRIMZI_HOME}/../v1-api-conversion
 COPY tmp/v1-api-conversion/ ../v1-api-conversion/
 

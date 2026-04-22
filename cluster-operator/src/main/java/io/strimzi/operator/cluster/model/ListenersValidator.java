@@ -9,6 +9,7 @@ import io.strimzi.api.kafka.model.kafka.listener.GenericKafkaListenerConfigurati
 import io.strimzi.api.kafka.model.kafka.listener.GenericKafkaListenerConfigurationBroker;
 import io.strimzi.api.kafka.model.kafka.listener.KafkaListenerAuthenticationTls;
 import io.strimzi.api.kafka.model.kafka.listener.KafkaListenerType;
+import io.strimzi.operator.cluster.rest.HttpListenerTypeSupport;
 import io.strimzi.operator.cluster.rest.HttpListenerValidator;
 import io.strimzi.operator.common.Reconciliation;
 import io.strimzi.operator.common.ReconciliationLogger;
@@ -153,7 +154,7 @@ public class ListenersValidator {
         int port = listener.getPort();
 
         if (FORBIDDEN_PORTS.contains(port)
-                || port < LOWEST_ALLOWED_PORT_NUMBER)    {
+                || (port < LOWEST_ALLOWED_PORT_NUMBER && !HttpListenerTypeSupport.isHttpOrHttps(listener)))    {
             errors.add("port " + port + " is forbidden and cannot be used");
         }
     }
