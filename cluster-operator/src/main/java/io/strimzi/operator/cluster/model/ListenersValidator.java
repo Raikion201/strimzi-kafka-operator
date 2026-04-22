@@ -9,6 +9,7 @@ import io.strimzi.api.kafka.model.kafka.listener.GenericKafkaListenerConfigurati
 import io.strimzi.api.kafka.model.kafka.listener.GenericKafkaListenerConfigurationBroker;
 import io.strimzi.api.kafka.model.kafka.listener.KafkaListenerAuthenticationTls;
 import io.strimzi.api.kafka.model.kafka.listener.KafkaListenerType;
+import io.strimzi.operator.cluster.rest.HttpListenerValidator;
 import io.strimzi.operator.common.Reconciliation;
 import io.strimzi.operator.common.ReconciliationLogger;
 import io.strimzi.operator.common.model.InvalidResourceException;
@@ -68,6 +69,9 @@ public class ListenersValidator {
             validatePortNumbers(errors, listener);
             validateRouteAndIngressTlsOnly(errors, listener);
             validateTlsFeaturesOnNonTlsListener(errors, listener);
+            // HTTP / HTTPS REST proxy rules live in the :rest-listener module;
+            // a non-HTTP listener makes this a no-op.
+            errors.addAll(HttpListenerValidator.validate(listener));
 
             if (listener.getConfiguration() != null)    {
                 validateServiceDnsDomain(errors, listener);

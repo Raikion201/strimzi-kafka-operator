@@ -19,6 +19,8 @@ public final class HttpListenerTypeSupport {
     }
 
     /**
+     * Classifies a listener as a plain-HTTP REST proxy listener.
+     *
      * @param listener the listener to classify
      * @return {@code true} if the listener is a plain HTTP REST proxy listener.
      */
@@ -27,6 +29,8 @@ public final class HttpListenerTypeSupport {
     }
 
     /**
+     * Classifies a listener as an HTTPS REST proxy listener.
+     *
      * @param listener the listener to classify
      * @return {@code true} if the listener is an HTTPS REST proxy listener.
      */
@@ -35,6 +39,8 @@ public final class HttpListenerTypeSupport {
     }
 
     /**
+     * Classifies a listener as any REST proxy listener (HTTP or HTTPS).
+     *
      * @param listener the listener to classify
      * @return {@code true} if the listener is an HTTP or HTTPS REST proxy listener.
      */

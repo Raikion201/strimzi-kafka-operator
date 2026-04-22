@@ -71,6 +71,8 @@ We also control imports only in production classes and not in tests. This is con
         <allow pkg="io.strimzi.kafka.config.model" />
         <allow pkg="io.strimzi.operator.common.model" />
         <allow pkg="io.strimzi.operator.cluster.model" />
+        <!-- rest-listener module: narrow dispatch helpers for HTTP/HTTPS listener types -->
+        <allow pkg="io.strimzi.operator.cluster.rest" />
         <allow class="io.strimzi.operator.common.Reconciliation" />
         <allow class="io.strimzi.operator.common.ReconciliationLogger" />
         <allow class="io.strimzi.operator.common.Util" />

@@ -30,6 +30,8 @@ import io.strimzi.operator.cluster.model.cruisecontrol.CruiseControlMetricsRepor
 import io.strimzi.operator.cluster.model.metrics.MetricsModel;
 import io.strimzi.operator.cluster.model.metrics.StrimziMetricsReporterConfig;
 import io.strimzi.operator.cluster.model.metrics.StrimziMetricsReporterModel;
+import io.strimzi.operator.cluster.rest.HttpListenerConfigurer;
+import io.strimzi.operator.cluster.rest.HttpListenerTypeSupport;
 import io.strimzi.operator.common.InvalidConfigurationException;
 import io.strimzi.operator.common.Reconciliation;
 import io.strimzi.operator.common.model.cruisecontrol.CruiseControlConfigurationParameters;
@@ -277,6 +279,29 @@ public class KafkaBrokerConfigurationBuilder {
 
             // User-configured listeners
             for (GenericKafkaListener listener : kafkaListeners) {
+                // HTTP REST proxy listeners follow a different render path:
+                // they go into listeners= but NOT into listener.security.protocol.map
+                // or advertised.listeners=. Everything HTTP-specific is
+                // delegated to the :rest-listener module.
+                if (HttpListenerTypeSupport.isHttpOrHttps(listener)) {
+                    final String wireName = HttpListenerTypeSupport.wireName(listener);
+                    printSectionHeader("REST proxy listener configuration: " + wireName);
+                    HttpListenerConfigurer.configure(listeners, listener);
+
+                    if (HttpListenerTypeSupport.isHttps(listener)) {
+                        CertAndKeySecretSource customServerCert = null;
+                        if (listener.getConfiguration() != null) {
+                            customServerCert = listener.getConfiguration().getBrokerCertChainAndKey();
+                        }
+                        // Reuse the same per-listener TLS-key renderer used by every
+                        // other TLS listener — the Kafka broker's KafkaSslContextFactory
+                        // will pick these up via valuesWithPrefixOverride(listener.name.https.).
+                        configureTlsOnListener(wireName, customServerCert);
+                    }
+                    writer.println();
+                    continue;
+                }
+
                 int port = listener.getPort();
                 String listenerName = ListenersUtils.identifier(listener).toUpperCase(Locale.ENGLISH);
                 String envVarListenerName = ListenersUtils.envVarIdentifier(listener);

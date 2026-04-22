@@ -81,6 +81,7 @@ import io.strimzi.operator.cluster.model.metrics.StrimziMetricsReporterModel;
 import io.strimzi.operator.cluster.model.metrics.SupportsMetrics;
 import io.strimzi.operator.cluster.model.securityprofiles.ContainerSecurityProviderContextImpl;
 import io.strimzi.operator.cluster.model.securityprofiles.PodSecurityProviderContextImpl;
+import io.strimzi.operator.cluster.rest.HttpListenerServices;
 import io.strimzi.operator.common.Annotations;
 import io.strimzi.operator.common.Reconciliation;
 import io.strimzi.operator.common.Util;
@@ -792,7 +793,14 @@ public class KafkaCluster extends AbstractModel implements SupportsMetrics, Supp
      * @return The list with generated Services
      */
     public List<Service> generatePerPodServices() {
-        List<GenericKafkaListener> externalListeners = ListenersUtils.listenersWithOwnServices(listeners);
+        // REST proxy listeners (HTTP/HTTPS) do not need per-broker Services —
+        // every broker accepts any REST request, so the bootstrap Service that
+        // round-robins across broker pods is sufficient. Filter them out here
+        // rather than inside the loop to keep the existing method's cyclomatic
+        // complexity unchanged.
+        List<GenericKafkaListener> externalListeners = ListenersUtils.listenersWithOwnServices(listeners).stream()
+                .filter(l -> !HttpListenerServices.skipPerPodService(l))
+                .toList();
         List<Service> services = new ArrayList<>();
 
         for (GenericKafkaListener listener : externalListeners)   {

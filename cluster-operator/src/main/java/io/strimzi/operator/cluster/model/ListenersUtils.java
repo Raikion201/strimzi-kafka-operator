@@ -16,6 +16,7 @@ import io.strimzi.api.kafka.model.kafka.listener.GenericKafkaListenerConfigurati
 import io.strimzi.api.kafka.model.kafka.listener.GenericKafkaListenerConfigurationBroker;
 import io.strimzi.api.kafka.model.kafka.listener.KafkaListenerType;
 import io.strimzi.api.kafka.model.kafka.listener.NodeAddressType;
+import io.strimzi.operator.cluster.rest.HttpListenerServices;
 import io.strimzi.operator.common.InvalidConfigurationException;
 
 import java.util.Collections;
@@ -728,6 +729,12 @@ public class ListenersUtils {
      * @return Service type
      */
     public static String serviceType(GenericKafkaListener listener) {
+        // HTTP / HTTPS REST proxy listeners delegate to the :rest-listener module.
+        // Keeping the dispatch here (rather than in an extra outer method) keeps
+        // every call-site for serviceType going through one place.
+        if (HttpListenerServices.handles(listener)) {
+            return HttpListenerServices.serviceType(listener);
+        }
         if (listener.getType() == KafkaListenerType.NODEPORT) {
             return "NodePort";
         } else if (listener.getType() == KafkaListenerType.LOADBALANCER) {
