@@ -90,7 +90,7 @@ public class HttpListenerST extends AbstractST {
      * listeners must bind to a free port. 9090 is the convention used by
      * the companion demo scripts in the Kafka fork.
      */
-    private static final int REST_LISTENER_PORT = 9090;
+    private static final int REST_LISTENER_PORT = 9095;
 
     /** One row in the http.rest.basic.credentials config string. */
     private static final String REST_USER = "alice";

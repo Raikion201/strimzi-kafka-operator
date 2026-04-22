@@ -77,7 +77,7 @@ spec:
                           pattern: "^[a-z0-9]{1,11}$"
                         port:
                           type: integer
-                          minimum: 1
+                          minimum: 9092
                         type:
                           type: string
                           enum:
@@ -5030,7 +5030,7 @@ spec:
                           pattern: "^[a-z0-9]{1,11}$"
                         port:
                           type: integer
-                          minimum: 1
+                          minimum: 9092
                         type:
                           type: string
                           enum:
