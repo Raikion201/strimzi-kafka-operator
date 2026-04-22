@@ -301,9 +301,9 @@
 # spec.kafka.version to this value when the Kafka CR also declares
 # type: http / type: https listeners. The checksum below is a placeholder —
 # fill in once the release asset is cut.
-- version: 4.4.0-rest-proxy
+- version: 4.4.0
   metadata: 4.2
-  url: https://github.com/Raikion201/kafka/releases/download/rest-proxy-0.1/kafka_2.13-4.4.0-rest-proxy.tgz
+  url: https://github.com/Raikion201/kafka/releases/download/rest-proxy-0.1/kafka_2.13-4.4.0.tgz
   checksum: d3a30d4fad352c104cc5f39b172df6fb12b2af4778961346abd60e0b91c4a419d4507faa29fb41e8df3e1d4c4bf09a5b9e68e7cfb58eefd68969fa2fb38e2927
   third-party-libs: 4.2.x
   supported: true
