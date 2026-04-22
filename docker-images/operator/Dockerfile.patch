@@ -1,0 +1,20 @@
+FROM quay.io/strimzi/operator:0.51.0
+USER root
+# Wholesale-replace lib/ and bin/ with the main-branch build so all JARs are
+# from a single consistent snapshot (Fabric8 7.6, Vert.x 5.0.10, etc.) and
+# there are no mixed-version classpath collisions with the 0.51.0 base image.
+RUN rm -f /opt/strimzi/lib/*.jar
+COPY tmp/lib/ /opt/strimzi/lib/
+COPY tmp/bin/ /opt/strimzi/bin/
+# Fix Windows-Maven classpath separators in EVERY run script. When built on
+# Windows, Maven writes `;` instead of `:` as the Linux classpath separator
+# and `\` instead of `/` as the path separator — broken in a Linux container
+# and, worse, causes the topic-/user-operator containers to silently pick up
+# the wrong JARs. Normalising all four scripts is cheap and safe.
+RUN for f in /opt/strimzi/bin/cluster_operator_run.sh \
+             /opt/strimzi/bin/topic_operator_run.sh \
+             /opt/strimzi/bin/user_operator_run.sh \
+             /opt/strimzi/bin/kafka_init_run.sh; do \
+      [ -f "$f" ] && sed -i '/^export JAVA_CLASSPATH=/ { s/;/:/g; s/\\/\//g }' "$f" || true; \
+    done
+USER 1001

@@ -13,6 +13,7 @@ import io.skodjob.annotations.TestDoc;
 import io.skodjob.kubetest4j.resources.KubeResourceManager;
 import io.strimzi.api.kafka.model.kafka.listener.GenericKafkaListenerBuilder;
 import io.strimzi.api.kafka.model.kafka.listener.KafkaListenerType;
+import org.junit.jupiter.api.Assumptions;
 import io.strimzi.systemtest.AbstractST;
 import io.strimzi.systemtest.annotations.ParallelNamespaceTest;
 import io.strimzi.systemtest.docs.TestDocsLabels;
@@ -20,6 +21,7 @@ import io.strimzi.systemtest.resources.operator.SetupClusterOperator;
 import io.strimzi.systemtest.storage.TestStorage;
 import io.strimzi.systemtest.templates.crd.KafkaNodePoolTemplates;
 import io.strimzi.systemtest.templates.crd.KafkaTemplates;
+import io.strimzi.systemtest.templates.crd.KafkaTopicTemplates;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeAll;
@@ -80,10 +82,15 @@ public class HttpListenerST extends AbstractST {
     private static final Logger LOGGER = LogManager.getLogger(HttpListenerST.class);
 
     /** Kafka version with supports-rest-proxy: true in kafka-versions.yaml. */
-    private static final String REST_PROXY_KAFKA_VERSION = "4.4.0-rest-proxy";
+    private static final String REST_PROXY_KAFKA_VERSION = "4.4.0";
 
-    /** Matches the listener's port in the CR below. */
-    private static final int REST_LISTENER_PORT = 8080;
+    /**
+     * Matches the listener's port in the CR below. Port 8080 is taken inside
+     * the Kafka broker image by the KafkaAgent JMX server, so REST proxy
+     * listeners must bind to a free port. 9090 is the convention used by
+     * the companion demo scripts in the Kafka fork.
+     */
+    private static final int REST_LISTENER_PORT = 9090;
 
     /** One row in the http.rest.basic.credentials config string. */
     private static final String REST_USER = "alice";
@@ -97,16 +104,25 @@ public class HttpListenerST extends AbstractST {
     @TestDoc(
         description = @Desc("Stakeholder demo — POST a record to the embedded REST proxy through the Strimzi-created LoadBalancer and confirm the broker appended it."),
         steps = {
-            @Step(value = "Deploy a Kafka CR with type: http listener on port 8080", expected = "Kafka cluster rolls out"),
+            @Step(value = "Deploy a Kafka CR with type: http listener on port 9090", expected = "Kafka cluster rolls out"),
+            @Step(value = "Create a KafkaTopic CR for the test topic", expected = "Topic is materialised on the broker"),
             @Step(value = "Wait for the LoadBalancer Service to receive an external address", expected = "External IP / hostname populated"),
             @Step(value = "POST /v1/topics/<test-topic> with Basic Auth", expected = "HTTP 200 with {partition, offset} body")
         },
         labels = { @Label(value = TestDocsLabels.KAFKA) }
     )
     void httpListenerExposedViaLoadBalancerAcceptsProduce() {
+        // The REST-proxy Kafka image must be pre-built locally before this test
+        // can run. Skip gracefully rather than failing with ImagePullBackOff.
+        // Build it with: bash demo-strimzi-rest-proxy.sh (in the kafka fork root).
+        Assumptions.assumeTrue(
+            isDockerImageAvailable("kafka-rest-proxy:demo"),
+            "Skipping: kafka-rest-proxy:demo not found locally. " +
+            "Build it with: bash demo-strimzi-rest-proxy.sh");
+
         final TestStorage ts = new TestStorage(KubeResourceManager.get().getTestContext());
 
-        // Deploy the Kafka CR. Broker pods come up with the REST proxy bound on 8080.
+        // Deploy the Kafka CR. Broker pods come up with the REST proxy bound on 9090.
         KubeResourceManager.get().createResourceWithWait(
                 KafkaNodePoolTemplates.brokerPoolPersistentStorage(ts.getNamespaceName(), ts.getBrokerPoolName(), ts.getClusterName(), 1).build(),
                 KafkaNodePoolTemplates.controllerPoolPersistentStorage(ts.getNamespaceName(), ts.getControllerPoolName(), ts.getClusterName(), 1).build(),
@@ -128,9 +144,18 @@ public class HttpListenerST extends AbstractST {
                                                 .withTls(false)
                                                 .build())
                                 .addToConfig("http.rest.basic.credentials", REST_USER + ":" + REST_PASS)
+                                .addToConfig("http.rest.swagger-ui.enabled", true)
                             .endKafka()
                         .endSpec()
                         .build()
+        );
+
+        // Pre-create the KafkaTopic so the first POST doesn't hit the
+        // auto-create-disabled 404 path. The REST proxy only supports
+        // produce to existing topics; the Topic Operator materialises this
+        // CR into a real Kafka topic on the plain listener before we curl.
+        KubeResourceManager.get().createResourceWithWait(
+                KafkaTopicTemplates.topic(ts.getNamespaceName(), ts.getTopicName(), ts.getClusterName(), 3).build()
         );
 
         // Wait for the LoadBalancer Service the operator created for the REST
@@ -145,12 +170,9 @@ public class HttpListenerST extends AbstractST {
 
         LOGGER.info("REST proxy LoadBalancer is at http://{}:{}", externalHost, REST_LISTENER_PORT);
 
-        // POST /v1/topics/<topic> through the external address. The Kafka CR
-        // does not pre-create topics, so the first POST against an auto-create-disabled
-        // cluster would 404. We pre-create the topic via the internal plain listener
-        // before curling the REST endpoint.
-        // (Auto-create and topic pre-creation are orthogonal to what this test is proving;
-        // skipped here for brevity — add KafkaTopic resource if needed by your cluster.)
+        // POST /v1/topics/<topic> through the external address. The topic
+        // was created above via a KafkaTopic CR, so the REST proxy's existence
+        // check passes and the produce path is exercised.
         try {
             final String credentials = Base64.getEncoder()
                     .encodeToString((REST_USER + ":" + REST_PASS).getBytes(java.nio.charset.StandardCharsets.UTF_8));
@@ -210,6 +232,18 @@ public class HttpListenerST extends AbstractST {
     private static String externalAddress(Service lb) {
         var ingress = lb.getStatus().getLoadBalancer().getIngress().get(0);
         return ingress.getIp() != null ? ingress.getIp() : ingress.getHostname();
+    }
+
+    /** Returns true if the named Docker image exists in the local daemon. */
+    private static boolean isDockerImageAvailable(String image) {
+        try {
+            Process p = new ProcessBuilder("docker", "image", "inspect", "--format", "{{.Id}}", image)
+                    .redirectErrorStream(true)
+                    .start();
+            return p.waitFor() == 0;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @BeforeAll
