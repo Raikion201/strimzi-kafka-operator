@@ -2,14 +2,7 @@
 
 ## 1.1.0
 
-* Add `type: http` and `type: https` listener types for use with Kafka builds that
-  include the embedded broker-native HTTP REST proxy (opt-in via an entry in
-  `kafka-versions.yaml` with `supports-rest-proxy: true`). When declared on a
-  Kafka CR, Strimzi produces a `Service type: LoadBalancer` pointing at the
-  broker pods' REST port so `curl` from outside the cluster hits
-  `POST /v1/topics/{name}` directly. All new operator-side code lives in a
-  new `rest-listener` Maven module; `cluster-operator` receives only narrow
-  dispatch calls. See `examples/kafka/kafka-rest-proxy.yaml` for a minimal CR.
+* _Nothing here yet, but we will surely develop something new pretty soon_ 😉
 
 ### Major changes, deprecations, and removals
 
