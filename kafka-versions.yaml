@@ -294,3 +294,18 @@
   third-party-libs: 4.2.x
   supported: true
   default: true
+# Forked Kafka build that carries the embedded HTTP REST proxy inside the broker
+# JVM. Produced by github.com/Raikion201/kafka (branch rest-proxy) via
+# './gradlew releaseTarGz' and hosted as a GitHub Release asset. Not a default
+# since most users want stock upstream Kafka; opt in by setting
+# spec.kafka.version to this value when the Kafka CR also declares
+# type: http / type: https listeners. The checksum below is a placeholder —
+# fill in once the release asset is cut.
+- version: 4.4.0-rest-proxy
+  metadata: 4.2
+  url: https://github.com/Raikion201/kafka/releases/download/rest-proxy-0.1/kafka_2.13-4.4.0-rest-proxy.tgz
+  checksum: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  third-party-libs: 4.2.x
+  supported: true
+  default: false
+  supports-rest-proxy: true

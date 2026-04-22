@@ -374,6 +374,7 @@ public class KafkaVersion implements Comparable<KafkaVersion> {
     private final boolean isDefault;
     private final boolean isSupported;
     private final String unsupportedFeatures;
+    private final boolean supportsRestProxy;
 
     /**
      * Class describing a Kafka version. This is used to deserialize the YAML file with the Kafka versions
@@ -383,19 +384,24 @@ public class KafkaVersion implements Comparable<KafkaVersion> {
      * @param isDefault             Flag indicating if this Kafka version is default
      * @param isSupported           Flag indicating if this Kafka version is supported by this operator version
      * @param unsupportedFeatures   Unsupported features
+     * @param supportsRestProxy     Flag indicating if this Kafka version includes the embedded HTTP REST proxy
+     *                              (broker-native HTTP/HTTPS listeners). Defaults to {@code false} — only
+     *                              opt-in forked builds have this set.
      */
     @JsonCreator
     public KafkaVersion(@JsonProperty("version") String version,
                         @JsonProperty("metadata") String metadataVersion,
                         @JsonProperty("default") boolean isDefault,
                         @JsonProperty("supported") boolean isSupported,
-                        @JsonProperty("unsupported-features") String unsupportedFeatures) {
+                        @JsonProperty("unsupported-features") String unsupportedFeatures,
+                        @JsonProperty("supports-rest-proxy") boolean supportsRestProxy) {
 
         this.version = version;
         this.metadataVersion = metadataVersion;
         this.isDefault = isDefault;
         this.isSupported = isSupported;
         this.unsupportedFeatures = unsupportedFeatures;
+        this.supportsRestProxy = supportsRestProxy;
     }
 
     @Override
@@ -406,6 +412,7 @@ public class KafkaVersion implements Comparable<KafkaVersion> {
                 ", isDefault=" + isDefault +
                 ", isSupported=" + isSupported +
                 ", unsupportedFeatures='" + unsupportedFeatures  + '\'' +
+                ", supportsRestProxy=" + supportsRestProxy +
                 '}';
     }
 
@@ -452,6 +459,19 @@ public class KafkaVersion implements Comparable<KafkaVersion> {
      */
     public String unsupportedFeatures() {
         return unsupportedFeatures;
+    }
+
+    /**
+     * Whether this Kafka version includes the embedded HTTP REST proxy (i.e. the
+     * broker has {@code HTTP://} / {@code HTTPS://} listener support baked in).
+     * Only opt-in forked builds set this to {@code true}; every stock upstream
+     * Kafka release defaults to {@code false}.
+     *
+     * @return {@code true} if the {@code rest-listener} module's HTTP / HTTPS
+     *         listener types can be used with this Kafka version.
+     */
+    public boolean supportsRestProxy() {
+        return supportsRestProxy;
     }
 
     @Override

@@ -10,6 +10,7 @@ import io.strimzi.api.kafka.model.kafka.listener.KafkaListenerAuthenticationTls;
 import io.strimzi.api.kafka.model.kafka.listener.KafkaListenerType;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -100,5 +101,42 @@ class HttpListenerValidatorTest {
                 .build();
 
         assertThat(HttpListenerValidator.validate(internal), is(empty()));
+    }
+
+    // ---------- version-support gate ----------
+
+    @Test
+    void versionGatePassesWhenVersionSupportsRestProxy() {
+        GenericKafkaListener http = new GenericKafkaListenerBuilder()
+                .withName("rest").withPort(8080).withType(KafkaListenerType.HTTP).withTls(false).build();
+
+        assertThat(HttpListenerValidator.checkKafkaVersionSupport(List.of(http), true, "4.4.0-rest-proxy"),
+                is(empty()));
+    }
+
+    @Test
+    void versionGateFailsWhenVersionDoesNotSupportRestProxy() {
+        GenericKafkaListener http = new GenericKafkaListenerBuilder()
+                .withName("rest").withPort(8080).withType(KafkaListenerType.HTTP).withTls(false).build();
+
+        Set<String> errors = HttpListenerValidator.checkKafkaVersionSupport(List.of(http), false, "4.2.0");
+        assertThat(errors, hasSize(1));
+        assertThat(errors, hasItem(stringContainsInOrder("4.2.0", "supports-rest-proxy", "remove")));
+    }
+
+    @Test
+    void versionGateIsNoOpWhenNoHttpListenerPresent() {
+        // No HTTP/HTTPS in the list → the gate doesn't fire even against a
+        // stock Kafka version, otherwise every existing Kafka CR would fail.
+        GenericKafkaListener internal = new GenericKafkaListenerBuilder()
+                .withName("plain").withPort(9092).withType(KafkaListenerType.INTERNAL).withTls(false).build();
+
+        assertThat(HttpListenerValidator.checkKafkaVersionSupport(List.of(internal), false, "4.2.0"),
+                is(empty()));
+    }
+
+    @Test
+    void versionGateIsSafeWithNullListenersList() {
+        assertThat(HttpListenerValidator.checkKafkaVersionSupport(null, false, "4.2.0"), is(empty()));
     }
 }

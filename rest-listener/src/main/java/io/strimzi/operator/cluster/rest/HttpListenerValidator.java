@@ -8,6 +8,7 @@ import io.strimzi.api.kafka.model.kafka.listener.GenericKafkaListener;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -70,5 +71,33 @@ public final class HttpListenerValidator {
         }
 
         return errors;
+    }
+
+    /**
+     * Checks that the Kafka version in use actually supports the embedded REST
+     * proxy. Using an HTTP / HTTPS listener against a stock upstream Kafka
+     * would silently no-op at startup (the broker never binds the port), which
+     * is a confusing failure mode. Fail the CR at validation time instead.
+     *
+     * @param listeners              full list of CR listeners; the check is a no-op when no
+     *                               HTTP/HTTPS listener is present
+     * @param versionSupportsRestProxy whether {@code spec.kafka.version} is a build that includes
+     *                                 the embedded REST proxy (i.e.
+     *                                 {@code KafkaVersion.supportsRestProxy()})
+     * @param kafkaVersion           the version string, for diagnostic messages
+     * @return error set; empty when compatible
+     */
+    public static Set<String> checkKafkaVersionSupport(List<GenericKafkaListener> listeners,
+                                                      boolean versionSupportsRestProxy,
+                                                      String kafkaVersion) {
+        boolean hasRestListener = listeners != null && listeners.stream().anyMatch(HttpListenerTypeSupport::isHttpOrHttps);
+        if (!hasRestListener || versionSupportsRestProxy) {
+            return Collections.emptySet();
+        }
+        return Set.of(
+                "Kafka version '" + kafkaVersion + "' does not include the embedded HTTP REST proxy, "
+                        + "so listeners with type 'http' / 'https' cannot be served. "
+                        + "Either choose a Kafka version whose entry in kafka-versions.yaml has "
+                        + "'supports-rest-proxy: true', or remove the HTTP/HTTPS listeners from the Kafka CR.");
     }
 }

@@ -82,6 +82,7 @@ import io.strimzi.operator.cluster.model.metrics.SupportsMetrics;
 import io.strimzi.operator.cluster.model.securityprofiles.ContainerSecurityProviderContextImpl;
 import io.strimzi.operator.cluster.model.securityprofiles.PodSecurityProviderContextImpl;
 import io.strimzi.operator.cluster.rest.HttpListenerServices;
+import io.strimzi.operator.cluster.rest.HttpListenerValidator;
 import io.strimzi.operator.common.Annotations;
 import io.strimzi.operator.common.Reconciliation;
 import io.strimzi.operator.common.Util;
@@ -362,6 +363,15 @@ public class KafkaCluster extends AbstractModel implements SupportsMetrics, Supp
             throw new InvalidResourceException("The required field .spec.kafka.listeners is missing");
         }
         ListenersValidator.validate(reconciliation, result.brokerNodes(), listeners);
+        // Gate: an HTTP/HTTPS listener only works on a Kafka build with the
+        // embedded REST proxy. Fail the CR at admission rather than silently
+        // no-op'ing at broker startup.
+        KafkaVersion targetVersion = versions.version(kafkaClusterSpec.getVersion());
+        java.util.Set<String> restProxyErrors = HttpListenerValidator.checkKafkaVersionSupport(
+                listeners, targetVersion.supportsRestProxy(), targetVersion.version());
+        if (!restProxyErrors.isEmpty()) {
+            throw new InvalidResourceException("Listener configuration is not valid: " + restProxyErrors);
+        }
         result.listeners = listeners;
 
         result.authorization = kafkaClusterSpec.getAuthorization();

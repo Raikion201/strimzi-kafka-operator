@@ -32,7 +32,7 @@ public class KafkaVersionTest {
 
     @Test
     public void parsingInvalidVersionTest() {
-        KafkaVersion kv = new KafkaVersion("2.8.0", "2.8", false, true, "");
+        KafkaVersion kv = new KafkaVersion("2.8.0", "2.8", false, true, "", false);
         assertThat(KafkaVersion.compareDottedIVVersions("2.7-IV1", kv.metadataVersion()), lessThan(0));
         assertThat(KafkaVersion.compareDottedIVVersions("2.9-IV1", kv.metadataVersion()), greaterThan(0));
 
