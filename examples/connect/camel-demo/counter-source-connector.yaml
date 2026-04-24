@@ -1,0 +1,16 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaConnector
+metadata:
+  name: counter-connector
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: my-connect-cluster
+spec:
+  class: org.apache.camel.kafkaconnector.countersource.CamelCountersourceSourceConnector
+  tasksMax: 1
+  config:
+    topics: counter-topic
+    key.converter: org.apache.kafka.connect.storage.StringConverter
+    value.converter: org.apache.kafka.connect.storage.StringConverter
+    camel.kamelet.counter-source.start: 1
+    camel.kamelet.counter-source.period: 1000

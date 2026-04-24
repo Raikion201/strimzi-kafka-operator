@@ -1,0 +1,42 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaConnect
+metadata:
+  name: my-connect-cluster
+  namespace: kafka
+  annotations:
+    strimzi.io/use-connector-resources: "true"
+spec:
+  version: 4.4.0
+  replicas: 1
+  bootstrapServers: my-cluster-kafka-bootstrap:9092
+  groupId: my-connect-group
+  configStorageTopic: my-connect-configs
+  offsetStorageTopic: my-connect-offsets
+  statusStorageTopic: my-connect-status
+  config:
+    config.storage.replication.factor: 1
+    offset.storage.replication.factor: 1
+    status.storage.replication.factor: 1
+  build:
+    output:
+      type: docker
+      image: ttl.sh/my-camel-connect:24h
+    plugins:
+      - name: camel-timer-source
+        artifacts:
+          - type: maven
+            group: org.apache.camel.kafkaconnector
+            artifact: camel-timer-source-kafka-connector
+            version: 4.8.0
+      - name: camel-counter-source
+        artifacts:
+          - type: maven
+            group: org.apache.camel.kafkaconnector
+            artifact: camel-counter-source-kafka-connector
+            version: 4.8.0
+      - name: camel-http-secured-sink
+        artifacts:
+          - type: maven
+            group: org.apache.camel.kafkaconnector
+            artifact: camel-http-secured-sink-kafka-connector
+            version: 4.8.0

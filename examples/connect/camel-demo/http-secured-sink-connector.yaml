@@ -1,0 +1,20 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaConnector
+metadata:
+  name: http-secured-sink-connector
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: my-connect-cluster
+spec:
+  class: org.apache.camel.kafkaconnector.httpsecuredsink.CamelHttpsecuredsinkSinkConnector
+  tasksMax: 1
+  config:
+    topics: timer-topic
+    key.converter: org.apache.kafka.connect.storage.StringConverter
+    value.converter: org.apache.kafka.connect.storage.StringConverter
+    camel.kamelet.http-secured-sink.url: "http://my-cluster-kafka-rest-bootstrap:9095/v1/topics/demo-topic"
+    camel.kamelet.http-secured-sink.method: "POST"
+    camel.kamelet.http-secured-sink.authMethod: "Basic"
+    camel.kamelet.http-secured-sink.authUsername: "alice"
+    camel.kamelet.http-secured-sink.authPassword: "s3cret"
+    camel.kamelet.http-secured-sink.authenticationPreemptive: "true"
