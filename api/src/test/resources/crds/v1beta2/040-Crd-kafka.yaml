@@ -87,6 +87,8 @@ spec:
                           - nodeport
                           - ingress
                           - cluster-ip
+                          - http
+                          - https
                         tls:
                           type: boolean
                         authentication:
@@ -5050,6 +5052,8 @@ spec:
                           - nodeport
                           - ingress
                           - cluster-ip
+                          - http
+                          - https
                         tls:
                           type: boolean
                         authentication:

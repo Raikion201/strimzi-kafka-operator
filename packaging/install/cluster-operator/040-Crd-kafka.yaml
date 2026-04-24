@@ -82,7 +82,7 @@ spec:
                         port:
                           type: integer
                           minimum: 9092
-                          description: "Port number used by the listener inside Kafka. The port number has to be unique within a given Kafka cluster. Allowed port numbers are 1 and higher with the exception of ports 9404 and 9999, which are already used for Prometheus and JMX. HTTP/HTTPS REST proxy listeners typically use ports like 9090 or 8080. Depending on the listener type, the port number might not be the same as the port number that connects Kafka clients."
+                          description: "Port number used by the listener inside Kafka. The port number has to be unique within a given Kafka cluster. Allowed port numbers are 9092 and higher with the exception of ports 9404 and 9999, which are already used for Prometheus and JMX. Depending on the listener type, the port number might not be the same as the port number that connects Kafka clients."
                         type:
                           type: string
                           enum:
