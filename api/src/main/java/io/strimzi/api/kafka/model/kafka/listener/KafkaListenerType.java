@@ -7,18 +7,33 @@ package io.strimzi.api.kafka.model.kafka.listener;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+/** Enumerates the supported Kafka listener types in Strimzi CRs. */
 public enum KafkaListenerType {
+    /** Internal cluster listener (no external exposure). */
     INTERNAL,
+    /** OpenShift Route listener. */
     ROUTE,
+    /** Kubernetes LoadBalancer listener. */
     LOADBALANCER,
+    /** Kubernetes NodePort listener. */
     NODEPORT,
+    /** Kubernetes Ingress listener. */
     INGRESS,
+    /** Kubernetes ClusterIP listener. */
     CLUSTER_IP,
+    /** Embedded HTTP REST proxy listener. */
     HTTP,
+    /** Embedded HTTPS REST proxy listener. */
     HTTPS;
 
+    /**
+     * Deserialise from the JSON string value used in CRs.
+     *
+     * @param value the JSON string
+     * @return the matching enum constant, or {@code null} if unknown
+     */
     @JsonCreator
-    public static KafkaListenerType forValue(String value) {
+    public static KafkaListenerType forValue(final String value) {
         switch (value) {
             case "internal":
                 return INTERNAL;
@@ -41,6 +56,11 @@ public enum KafkaListenerType {
         }
     }
 
+    /**
+     * Serialise to the JSON string value used in CRs.
+     *
+     * @return the JSON string for this constant
+     */
     @JsonValue
     public String toValue() {
         switch (this) {

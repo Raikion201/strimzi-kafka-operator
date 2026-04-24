@@ -9,9 +9,9 @@ import io.strimzi.api.kafka.model.kafka.listener.KafkaListenerType;
 
 /**
  * Tiny predicates that let {@code cluster-operator} dispatch HTTP/HTTPS
- * listener work to this module without ever importing the concrete renderers.
- * The rest of this module owns all HTTP-specific behaviour; {@code cluster-operator}
- * only needs to ask "is this listener mine to handle?".
+ * listener work to this module without importing the concrete renderers.
+ * The rest of this module owns all HTTP-specific behaviour;
+ * {@code cluster-operator} only needs to ask "is this listener mine?".
  */
 public final class HttpListenerTypeSupport {
 
@@ -24,8 +24,9 @@ public final class HttpListenerTypeSupport {
      * @param listener the listener to classify
      * @return {@code true} if the listener is a plain HTTP REST proxy listener.
      */
-    public static boolean isHttp(GenericKafkaListener listener) {
-        return listener != null && KafkaListenerType.HTTP == listener.getType();
+    public static boolean isHttp(final GenericKafkaListener listener) {
+        return listener != null
+                && KafkaListenerType.HTTP == listener.getType();
     }
 
     /**
@@ -34,37 +35,39 @@ public final class HttpListenerTypeSupport {
      * @param listener the listener to classify
      * @return {@code true} if the listener is an HTTPS REST proxy listener.
      */
-    public static boolean isHttps(GenericKafkaListener listener) {
-        return listener != null && KafkaListenerType.HTTPS == listener.getType();
+    public static boolean isHttps(final GenericKafkaListener listener) {
+        return listener != null
+                && KafkaListenerType.HTTPS == listener.getType();
     }
 
     /**
      * Classifies a listener as any REST proxy listener (HTTP or HTTPS).
      *
      * @param listener the listener to classify
-     * @return {@code true} if the listener is an HTTP or HTTPS REST proxy listener.
+     * @return {@code true} if the listener is HTTP or HTTPS.
      */
-    public static boolean isHttpOrHttps(GenericKafkaListener listener) {
+    public static boolean isHttpOrHttps(final GenericKafkaListener listener) {
         return isHttp(listener) || isHttps(listener);
     }
 
     /**
-     * Canonical on-the-wire listener name for an HTTP/HTTPS listener. The Kafka
-     * broker's {@code KafkaConfig.HttpListenerRegex} matches exactly {@code HTTP}
-     * and {@code HTTPS} (case-insensitive), so the operator must emit those
-     * literals rather than the user-chosen listener name.
+     * Canonical on-the-wire listener name for an HTTP/HTTPS listener.
+     * The Kafka broker's {@code KafkaConfig.HttpListenerRegex} matches
+     * exactly {@code HTTP} and {@code HTTPS} (case-insensitive), so the
+     * operator must emit those literals rather than the user-chosen name.
      *
      * @param listener HTTP or HTTPS listener
-     * @return {@code "HTTPS"} if {@link #isHttps(GenericKafkaListener)}, otherwise {@code "HTTP"}
-     * @throws IllegalArgumentException if the listener is neither HTTP nor HTTPS
+     * @return {@code "HTTPS"} when {@link #isHttps}, otherwise {@code "HTTP"}
+     * @throws IllegalArgumentException if the listener is not HTTP / HTTPS
      */
-    public static String wireName(GenericKafkaListener listener) {
+    public static String wireName(final GenericKafkaListener listener) {
         if (isHttps(listener)) {
             return "HTTPS";
         }
         if (isHttp(listener)) {
             return "HTTP";
         }
-        throw new IllegalArgumentException("wireName called on a non-HTTP listener: " + listener);
+        throw new IllegalArgumentException(
+                "wireName called on a non-HTTP listener: " + listener);
     }
 }

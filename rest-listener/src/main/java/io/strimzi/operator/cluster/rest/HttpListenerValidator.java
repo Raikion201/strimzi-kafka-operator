@@ -19,19 +19,11 @@ import java.util.Set;
  *
  * <p>Rules enforced here:</p>
  * <ul>
- *     <li><b>HTTPS must have {@code tls: true}.</b> An HTTPS listener with
- *         {@code tls: false} would skip Jetty's TLS connector wiring and
- *         silently accept plaintext — dangerous and inconsistent with the
- *         broker-side {@code KafkaSslContextFactory} expectations.</li>
- *     <li><b>HTTP must have {@code tls: false}.</b> The broker's
- *         {@code KafkaConfig.HttpListenerRegex} matches {@code HTTP://}
- *         and {@code HTTPS://} literally by scheme; {@code tls: true} on
- *         an HTTP listener would write an {@code HTTP://} wire literal
- *         plus a TLS config, an inconsistent combination.</li>
+ *     <li><b>HTTPS must have {@code tls: true}.</b></li>
+ *     <li><b>HTTP must have {@code tls: false}.</b></li>
  *     <li><b>Kafka-protocol authentication is not applicable.</b> REST
  *         authentication is HTTP Basic via
- *         {@code http.rest.basic.credentials}; SASL/mTLS/OAuth listener
- *         auth doesn't apply — reject at the CR to avoid silent drops.</li>
+ *         {@code http.rest.basic.credentials}.</li>
  * </ul>
  */
 public final class HttpListenerValidator {
@@ -44,13 +36,10 @@ public final class HttpListenerValidator {
      *
      * @param listener an HTTP or HTTPS listener (callers should filter via
      *                 {@link HttpListenerTypeSupport#isHttpOrHttps}); non-HTTP
-     *                 listeners produce an empty result set so the delegate
-     *                 call site is a safe no-op for other types.
-     * @return the set of human-readable error messages; empty when the listener
-     *         is valid. Return type matches {@code ListenersValidator}'s own
-     *         error collector.
+     *                 listeners produce an empty result set.
+     * @return the set of human-readable error messages; empty when valid.
      */
-    public static Set<String> validate(GenericKafkaListener listener) {
+    public static Set<String> validate(final GenericKafkaListener listener) {
         if (!HttpListenerTypeSupport.isHttpOrHttps(listener)) {
             return Collections.emptySet();
         }
@@ -59,45 +48,50 @@ public final class HttpListenerValidator {
         final String prefix = "listener '" + listener.getName() + "'";
 
         if (HttpListenerTypeSupport.isHttps(listener) && !listener.isTls()) {
-            errors.add(prefix + " has type 'https' but 'tls: false'; HTTPS listeners must set tls: true");
+            errors.add(prefix
+                    + " has type 'https' but 'tls: false';"
+                    + " HTTPS listeners must set tls: true");
         }
         if (HttpListenerTypeSupport.isHttp(listener) && listener.isTls()) {
-            errors.add(prefix + " has type 'http' but 'tls: true'; plain HTTP listeners must set tls: false");
+            errors.add(prefix
+                    + " has type 'http' but 'tls: true';"
+                    + " plain HTTP listeners must set tls: false");
         }
         if (listener.getAuth() != null) {
             errors.add(prefix
-                    + " has listener-level auth configured, which does not apply to HTTP REST proxy listeners. "
-                    + "Use http.rest.basic.credentials in spec.kafka.config for HTTP Basic auth instead");
+                    + " has listener-level auth configured, which does not"
+                    + " apply to HTTP REST proxy listeners."
+                    + " Use http.rest.basic.credentials in"
+                    + " spec.kafka.config for HTTP Basic auth instead");
         }
 
         return errors;
     }
 
     /**
-     * Checks that the Kafka version in use actually supports the embedded REST
-     * proxy. Using an HTTP / HTTPS listener against a stock upstream Kafka
-     * would silently no-op at startup (the broker never binds the port), which
-     * is a confusing failure mode. Fail the CR at validation time instead.
+     * Checks that the Kafka version in use supports the embedded REST proxy.
      *
-     * @param listeners              full list of CR listeners; the check is a no-op when no
-     *                               HTTP/HTTPS listener is present
-     * @param versionSupportsRestProxy whether {@code spec.kafka.version} is a build that includes
-     *                                 the embedded REST proxy (i.e.
-     *                                 {@code KafkaVersion.supportsRestProxy()})
-     * @param kafkaVersion           the version string, for diagnostic messages
+     * @param listeners              full list of CR listeners
+     * @param versionSupportsRestProxy whether the version includes the proxy
+     * @param kafkaVersion           the version string, for diagnostics
      * @return error set; empty when compatible
      */
-    public static Set<String> checkKafkaVersionSupport(List<GenericKafkaListener> listeners,
-                                                      boolean versionSupportsRestProxy,
-                                                      String kafkaVersion) {
-        boolean hasRestListener = listeners != null && listeners.stream().anyMatch(HttpListenerTypeSupport::isHttpOrHttps);
+    public static Set<String> checkKafkaVersionSupport(
+            final List<GenericKafkaListener> listeners,
+            final boolean versionSupportsRestProxy,
+            final String kafkaVersion) {
+        boolean hasRestListener = listeners != null
+                && listeners.stream()
+                        .anyMatch(HttpListenerTypeSupport::isHttpOrHttps);
         if (!hasRestListener || versionSupportsRestProxy) {
             return Collections.emptySet();
         }
         return Set.of(
-                "Kafka version '" + kafkaVersion + "' does not include the embedded HTTP REST proxy, "
-                        + "so listeners with type 'http' / 'https' cannot be served. "
-                        + "Either choose a Kafka version whose entry in kafka-versions.yaml has "
-                        + "'supports-rest-proxy: true', or remove the HTTP/HTTPS listeners from the Kafka CR.");
+                "Kafka version '" + kafkaVersion + "' does not include"
+                + " the embedded HTTP REST proxy, so listeners with type"
+                + " 'http' / 'https' cannot be served."
+                + " Either choose a Kafka version whose entry in"
+                + " kafka-versions.yaml has 'supports-rest-proxy: true',"
+                + " or remove the HTTP/HTTPS listeners from the Kafka CR.");
     }
 }
