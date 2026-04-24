@@ -50,22 +50,38 @@ import static org.hamcrest.Matchers.is;
  * the resulting connectors produce and consume records correctly on a live
  * Kubernetes cluster.</p>
  *
- * <p>Three scenarios are covered, each building on a different connector type:</p>
+ * <p>Three scenarios are covered:</p>
  * <ol>
- *   <li><b>camel-timer-source</b> — self-generating source, no external system</li>
- *   <li><b>camel-counter-source</b> — self-generating source with sequential data</li>
- *   <li><b>camel-http-secured-sink</b> — sink that forwards records via HTTP POST
- *       to our custom REST proxy (port 9095) using Basic Auth</li>
+ *   <li><b>camel-timer-source</b> — fires on a schedule and produces formatted
+ *       counter messages {@code "test counter + N"} using Camel's built-in
+ *       {@code CamelTimerCounter} exchange property.</li>
+ *   <li><b>camel-counter-source</b> — produces sequential raw integers
+ *       (1, 2, 3…) to demonstrate a self-generating numeric source.</li>
+ *   <li><b>camel-http-secured-sink</b> (end-to-end) — reads the formatted
+ *       counter messages from the timer connector and forwards each one via
+ *       HTTP POST to our custom REST proxy (port 9095) using Basic Auth,
+ *       resulting in {@code "test counter + N"} messages landing in
+ *       {@code demo-topic}.</li>
  * </ol>
+ *
+ * <p><b>Why timer-source for the formatted counter, not counter-source?</b><br>
+ * The {@code camel-counter-source} Kamelet emits raw integers only — it has no
+ * message template parameter. The {@code camel-timer-source} Kamelet evaluates
+ * its {@code message} parameter as a Camel Simple expression at runtime, so
+ * {@code "test counter + ${exchangeProperty.CamelTimerCounter}"} produces the
+ * formatted string we want. {@code CamelTimerCounter} is a built-in Camel
+ * property that increments by 1 on every timer tick, starting at 1.</p>
  */
 @Tag(REGRESSION)
 @Tag(CONNECT)
 @Tag(CONNECT_COMPONENTS)
 @SuiteDoc(
     description = @Desc("Verifies Kafka Connect pipeline using camel-kafka-connector plugins "
-            + "(timer source, counter source, http-secured sink) integrated with Strimzi."),
+            + "(timer source with formatted counter, counter source, http-secured sink) "
+            + "integrated with Strimzi and the custom REST proxy."),
     beforeTestSteps = {
-        @Step(value = "Deploy Kafka cluster and Cluster Operator.", expected = "Kafka cluster is ready.")
+        @Step(value = "Deploy Kafka cluster and Cluster Operator.",
+                expected = "Kafka cluster is ready.")
     },
     labels = {
         @Label(value = TestDocsLabels.CONNECT)
@@ -85,42 +101,55 @@ class CamelConnectST extends AbstractST {
     // Strimzi pushes the built KafkaConnect image here so the cluster can pull it.
     private static final String CONNECT_IMAGE = "ttl.sh/strimzi-camel-connect:24h";
 
+    // CamelTimerCounter is a built-in Camel exchange property that starts at 1
+    // and increments by 1 on every timer tick. When used in the timer-source
+    // message parameter (a Camel Simple expression), it produces:
+    //   "test counter + 1", "test counter + 2", "test counter + 3", ...
+    private static final String TIMER_MESSAGE_TEMPLATE =
+            "test counter + ${exchangeProperty.CamelTimerCounter}";
+
     /**
      * Test path:
+     * <pre>
      *   camel-timer-source Kamelet
-     *       → fires every 2 s with a fixed string
+     *       → fires every 2 s
+     *       → evaluates message template at runtime:
+     *           "test counter + ${exchangeProperty.CamelTimerCounter}"
+     *         → "test counter + 1", "test counter + 2", "test counter + 3"
      *       → KafkaConnect writes records to {@code timer-topic}
+     * </pre>
      *
-     * <p>What it tests: Strimzi can build a KafkaConnect image containing the
-     * camel-timer-source plugin and the connector starts without errors.
-     * The timer fires autonomously — no external producer needed.</p>
+     * <p>What it tests: the timer-source Kamelet evaluates Camel Simple
+     * expressions in its {@code message} parameter, producing incrementing
+     * counter messages without any external system or custom code.</p>
      *
      * <p>Expected result: at least 3 records appear in {@code timer-topic}
-     * within 60 s, each with value {@code "hello from camel connect"}.</p>
+     * within 60 s. Each record value matches the pattern
+     * {@code "test counter + N"} where N is a positive integer.</p>
      */
     @ParallelNamespaceTest
     @TestDoc(
-        description = @Desc("Verifies that the camel-timer-source connector "
-                + "produces messages to a Kafka topic automatically."),
+        description = @Desc("Verifies that the camel-timer-source connector produces "
+                + "formatted counter messages (\"test counter + N\") to a Kafka topic "
+                + "using Camel's built-in CamelTimerCounter exchange property."),
         steps = {
             @Step(value = "Deploy KafkaConnect with camel-timer-source plugin built from Maven.",
                     expected = "KafkaConnect pod is Running."),
-            @Step(value = "Deploy timer-connector KafkaConnector CR.",
+            @Step(value = "Deploy timer-connector with message template "
+                    + "\"test counter + ${exchangeProperty.CamelTimerCounter}\".",
                     expected = "Connector status is RUNNING."),
-            @Step(value = "Consume messages from timer-topic.",
-                    expected = "At least 3 messages received within 60 s.")
+            @Step(value = "Consume 3 messages from timer-topic.",
+                    expected = "Records contain \"test counter + 1\", "
+                            + "\"test counter + 2\", \"test counter + 3\".")
         },
         labels = {
             @Label(value = TestDocsLabels.CONNECT)
         }
     )
-    void testCamelTimerSourceProducesMessages() {
+    void testCamelTimerSourceProducesFormattedCounterMessages() {
         final TestStorage testStorage = new TestStorage(KubeResourceManager.get().getTestContext());
         final String timerTopic = "timer-topic-" + testStorage.getClusterName();
 
-        // camel-timer-source Kamelet config:
-        //   message — the string value written to every Kafka record
-        //   period  — how often the timer fires (milliseconds)
         Plugin timerPlugin = new PluginBuilder()
                 .withName("camel-timer-source")
                 .withArtifacts(new MavenArtifactBuilder()
@@ -137,7 +166,8 @@ class CamelConnectST extends AbstractST {
                         testStorage.getControllerPoolName(), testStorage.getClusterName(), 1).build()
         );
         KubeResourceManager.get().createResourceWithWait(
-                KafkaTemplates.kafka(testStorage.getNamespaceName(), testStorage.getClusterName(), 1).build()
+                KafkaTemplates.kafka(testStorage.getNamespaceName(),
+                        testStorage.getClusterName(), 1).build()
         );
         KubeResourceManager.get().createResourceWithWait(
                 KafkaTopicTemplates.topic(testStorage.getNamespaceName(), timerTopic,
@@ -166,22 +196,27 @@ class CamelConnectST extends AbstractST {
                             .withTasksMax(1)
                             .withConfig(Map.of(
                                     "topics", timerTopic,
-                                    "key.converter", "org.apache.kafka.connect.storage.StringConverter",
-                                    "value.converter", "org.apache.kafka.connect.storage.StringConverter",
-                                    "camel.kamelet.timer-source.message", "hello from camel connect",
+                                    "key.converter",
+                                        "org.apache.kafka.connect.storage.StringConverter",
+                                    "value.converter",
+                                        "org.apache.kafka.connect.storage.StringConverter",
+                                    // Camel evaluates this Simple expression at runtime on every tick.
+                                    // CamelTimerCounter starts at 1 and increments by 1 per tick.
+                                    // Result: "test counter + 1", "test counter + 2", ...
+                                    "camel.kamelet.timer-source.message", TIMER_MESSAGE_TEMPLATE,
                                     "camel.kamelet.timer-source.period", "2000"
                             ))
                         .endSpec()
                         .build()
         );
 
-        // Wait until the KafkaConnector CR reports state=RUNNING before consuming,
+        // Wait until the connector reports RUNNING before consuming,
         // otherwise the consumer may time out before any records are produced.
         KafkaConnectorUtils.waitForConnectorReady(testStorage.getNamespaceName(), "timer-connector");
 
         // Consume 3 records from timer-topic.
-        // Expected: 3 records each containing "hello from camel connect" arrive
-        // within 60 s (timer fires every 2 s, so 3 records = ~6 s in practice).
+        // Expected values: "test counter + 1", "test counter + 2", "test counter + 3".
+        // At 2 s per tick this takes ~6 s; 60 s timeout gives ample margin.
         KafkaClients kafkaClients = new KafkaClientsBuilder()
                 .withBootstrapAddress(testStorage.getClusterName() + "-kafka-bootstrap:9092")
                 .withTopicName(timerTopic)
@@ -194,21 +229,24 @@ class CamelConnectST extends AbstractST {
         ClientUtils.waitForClientSuccess(testStorage.getNamespaceName(),
                 kafkaClients.getConsumerName(), 3, 60_000);
 
-        LOGGER.info("Timer source connector successfully produced messages to topic: {}", timerTopic);
+        LOGGER.info("Timer source produced formatted counter messages to topic: {}", timerTopic);
     }
 
     /**
      * Test path:
+     * <pre>
      *   camel-counter-source Kamelet
-     *       → emits integers 1, 2, 3, 4, 5 (one per second)
-     *       → KafkaConnect writes records to {@code counter-topic}
+     *       → emits integer sequence: 1, 2, 3, 4, 5  (one per second)
+     *       → KafkaConnect writes each integer as a string record value
+     *           to {@code counter-topic}
+     * </pre>
      *
-     * <p>What it tests: the counter connector produces structured, varying data
-     * (not just a fixed string) and respects the {@code start} and {@code numbers}
-     * Kamelet parameters that control the sequence range.</p>
+     * <p>What it tests: the counter-source Kamelet produces sequential raw
+     * integer values and respects the {@code start} and {@code numbers}
+     * parameters that control the sequence range and stop condition.</p>
      *
-     * <p>Expected result: exactly 5 records appear in {@code counter-topic},
-     * with values {@code "1"}, {@code "2"}, {@code "3"}, {@code "4"}, {@code "5"}
+     * <p>Expected result: exactly 5 records appear in {@code counter-topic}
+     * within 60 s, with string values {@code "1"} through {@code "5"}
      * in order.</p>
      */
     @ParallelNamespaceTest
@@ -218,10 +256,10 @@ class CamelConnectST extends AbstractST {
         steps = {
             @Step(value = "Deploy KafkaConnect with camel-counter-source plugin built from Maven.",
                     expected = "KafkaConnect pod is Running."),
-            @Step(value = "Deploy counter-connector KafkaConnector CR.",
+            @Step(value = "Deploy counter-connector with start=1, period=1000, numbers=5.",
                     expected = "Connector status is RUNNING."),
             @Step(value = "Consume 5 messages from counter-topic.",
-                    expected = "5 messages received with sequential values starting from 1.")
+                    expected = "Records contain values \"1\", \"2\", \"3\", \"4\", \"5\" in order.")
         },
         labels = {
             @Label(value = TestDocsLabels.CONNECT)
@@ -232,10 +270,6 @@ class CamelConnectST extends AbstractST {
         final String counterTopic = "counter-topic-" + testStorage.getClusterName();
         final int messageCount = 5;
 
-        // camel-counter-source Kamelet config:
-        //   start   — first integer in the sequence (inclusive)
-        //   period  — delay between each integer (milliseconds)
-        //   numbers — total number of integers to emit before stopping
         Plugin counterPlugin = new PluginBuilder()
                 .withName("camel-counter-source")
                 .withArtifacts(new MavenArtifactBuilder()
@@ -252,7 +286,8 @@ class CamelConnectST extends AbstractST {
                         testStorage.getControllerPoolName(), testStorage.getClusterName(), 1).build()
         );
         KubeResourceManager.get().createResourceWithWait(
-                KafkaTemplates.kafka(testStorage.getNamespaceName(), testStorage.getClusterName(), 1).build()
+                KafkaTemplates.kafka(testStorage.getNamespaceName(),
+                        testStorage.getClusterName(), 1).build()
         );
         KubeResourceManager.get().createResourceWithWait(
                 KafkaTopicTemplates.topic(testStorage.getNamespaceName(), counterTopic,
@@ -276,13 +311,18 @@ class CamelConnectST extends AbstractST {
                             .withTasksMax(1)
                             .withConfig(Map.of(
                                     "topics", counterTopic,
-                                    "key.converter", "org.apache.kafka.connect.storage.StringConverter",
-                                    "value.converter", "org.apache.kafka.connect.storage.StringConverter",
+                                    "key.converter",
+                                        "org.apache.kafka.connect.storage.StringConverter",
+                                    "value.converter",
+                                        "org.apache.kafka.connect.storage.StringConverter",
+                                    // start=1: sequence begins at 1
+                                    // period=1000: one integer per second
+                                    // numbers=5: stop after exactly 5 integers so the
+                                    //            consumer does not hang waiting for more
                                     "camel.kamelet.counter-source.start", "1",
                                     "camel.kamelet.counter-source.period", "1000",
-                                    // Stop after exactly messageCount integers so the consumer
-                                    // does not wait indefinitely for records that never arrive.
-                                    "camel.kamelet.counter-source.numbers", String.valueOf(messageCount)
+                                    "camel.kamelet.counter-source.numbers",
+                                        String.valueOf(messageCount)
                             ))
                         .endSpec()
                         .build()
@@ -290,9 +330,8 @@ class CamelConnectST extends AbstractST {
 
         KafkaConnectorUtils.waitForConnectorReady(testStorage.getNamespaceName(), "counter-connector");
 
-        // Consume exactly messageCount records from counter-topic.
-        // Expected: records arrive with values "1" through "5" in order
-        // within 60 s (1 record/s, so ~5 s in practice).
+        // Consume exactly 5 records from counter-topic.
+        // Expected: "1", "2", "3", "4", "5" in order within 60 s.
         KafkaClients kafkaClients = new KafkaClientsBuilder()
                 .withBootstrapAddress(testStorage.getClusterName() + "-kafka-bootstrap:9092")
                 .withTopicName(counterTopic)
@@ -305,7 +344,7 @@ class CamelConnectST extends AbstractST {
         ClientUtils.waitForClientSuccess(testStorage.getNamespaceName(),
                 kafkaClients.getConsumerName(), messageCount, 60_000);
 
-        LOGGER.info("Counter source connector successfully produced {} sequential messages to topic: {}",
+        LOGGER.info("Counter source produced {} sequential integer messages to topic: {}",
                 messageCount, counterTopic);
     }
 
@@ -314,52 +353,61 @@ class CamelConnectST extends AbstractST {
      * <pre>
      *   camel-timer-source Kamelet
      *       → fires every 3 s
-     *       → KafkaConnect writes records to {@code timer-topic}
+     *       → evaluates: "test counter + ${exchangeProperty.CamelTimerCounter}"
+     *         → "test counter + 1", "test counter + 2", "test counter + 3"
+     *       → writes records to {@code timer-topic}
      *       ↓
      *   camel-http-secured-sink Kamelet
-     *       → reads records from {@code timer-topic}
-     *       → HTTP POST to REST proxy at port 9095 with Basic Auth (alice:s3cret)
+     *       → reads each record from {@code timer-topic}
+     *       → HTTP POST body = record value ("test counter + N")
+     *       → URL: http://my-cluster-kafka-rest-bootstrap:9095/v1/topics/demo-topic
+     *       → Header: Authorization: Basic YWxpY2U6czNjcmV0  (alice:s3cret)
      *       ↓
-     *   Custom Kafka REST proxy (embedded in broker)
-     *       → authenticates the request
-     *       → produces the record value to {@code demo-topic}
+     *   Custom Kafka REST proxy (embedded in broker, port 9095)
+     *       → validates Basic Auth credentials
+     *       → parses body as raw string (no Content-Type header from Camel)
+     *       → produces record with value "test counter + N" to {@code demo-topic}
      * </pre>
      *
-     * <p>What it tests: the full integration between Kafka Connect and our
-     * custom REST proxy. The sink connector must:</p>
+     * <p>What it tests: the complete integration between:</p>
      * <ul>
-     *   <li>Send HTTP POST with no explicit {@code Content-Type} header
-     *       (the Kamelet does not set one) — the REST proxy must accept
-     *       it and treat the raw body as the record value.</li>
-     *   <li>Include {@code Authorization: Basic YWxpY2U6czNjcmV0} on
-     *       the first request ({@code authenticationPreemptive: true})
-     *       without waiting for a 401 challenge.</li>
+     *   <li>Camel Simple expression evaluation in the timer-source message</li>
+     *   <li>The http-secured-sink forwarding records via HTTP POST</li>
+     *   <li>Our custom REST proxy accepting requests with no Content-Type
+     *       header (fixed in ProduceResource — raw body treated as value)</li>
+     *   <li>Preemptive Basic Auth — the sink sends {@code Authorization}
+     *       on the first request without a 401 challenge</li>
      * </ul>
      *
-     * <p>Expected result: at least 3 records appear in {@code demo-topic}
-     * within 120 s, confirming the complete chain works end-to-end.</p>
+     * <p>Expected result: at least 3 records with values
+     * {@code "test counter + 1"}, {@code "test counter + 2"},
+     * {@code "test counter + 3"} appear in {@code demo-topic} within 120 s.</p>
      */
     @ParallelNamespaceTest
     @TestDoc(
-        description = @Desc("Verifies full end-to-end pipeline: timer-source produces to "
-                + "timer-topic, http-secured-sink forwards to REST proxy, "
+        description = @Desc("Verifies full end-to-end pipeline: timer-source produces "
+                + "\"test counter + N\" messages to timer-topic; http-secured-sink forwards "
+                + "each one via HTTP POST with Basic Auth to the custom REST proxy; "
                 + "messages land in demo-topic."),
         steps = {
             @Step(value = "Deploy KafkaConnect with timer-source and http-secured-sink plugins.",
                     expected = "KafkaConnect pod is Running."),
-            @Step(value = "Deploy timer-connector producing to timer-topic.",
-                    expected = "Connector status is RUNNING."),
+            @Step(value = "Deploy timer-connector with message template "
+                    + "\"test counter + ${exchangeProperty.CamelTimerCounter}\".",
+                    expected = "Connector status is RUNNING; "
+                            + "timer-topic receives \"test counter + 1\", \"test counter + 2\", ..."),
             @Step(value = "Deploy http-secured-sink-connector reading from timer-topic, "
-                    + "POSTing to REST proxy.",
-                    expected = "Connector status is RUNNING."),
-            @Step(value = "Consume from demo-topic.",
-                    expected = "Messages arrive in demo-topic via REST proxy — full pipeline verified.")
+                    + "POSTing to REST proxy at port 9095 with Basic Auth (alice:s3cret).",
+                    expected = "Connector status is RUNNING; REST proxy accepts POST."),
+            @Step(value = "Consume 3 messages from demo-topic.",
+                    expected = "Records contain \"test counter + 1\", \"test counter + 2\", "
+                            + "\"test counter + 3\" — full pipeline verified.")
         },
         labels = {
             @Label(value = TestDocsLabels.CONNECT)
         }
     )
-    void testCamelHttpSecuredSinkForwardsToRestProxy() {
+    void testCamelHttpSecuredSinkForwardsCounterMessagesToRestProxy() {
         final TestStorage testStorage = new TestStorage(KubeResourceManager.get().getTestContext());
         final String timerTopic = "timer-topic-" + testStorage.getClusterName();
         final String demoTopic = "demo-topic";
@@ -371,7 +419,6 @@ class CamelConnectST extends AbstractST {
                 "http://my-cluster-kafka-rest-bootstrap.kafka.svc:9095/v1/topics/" + demoTopic;
 
         // Both plugins are bundled into the same KafkaConnect image.
-        // timer-source produces records; http-secured-sink consumes and forwards them.
         Plugin timerPlugin = new PluginBuilder()
                 .withName("camel-timer-source")
                 .withArtifacts(new MavenArtifactBuilder()
@@ -397,7 +444,8 @@ class CamelConnectST extends AbstractST {
                         testStorage.getControllerPoolName(), testStorage.getClusterName(), 1).build()
         );
         KubeResourceManager.get().createResourceWithWait(
-                KafkaTemplates.kafka(testStorage.getNamespaceName(), testStorage.getClusterName(), 1).build()
+                KafkaTemplates.kafka(testStorage.getNamespaceName(),
+                        testStorage.getClusterName(), 1).build()
         );
         KubeResourceManager.get().createResourceWithWait(
                 KafkaTopicTemplates.topic(testStorage.getNamespaceName(), timerTopic,
@@ -414,8 +462,8 @@ class CamelConnectST extends AbstractST {
         );
 
         // Connector 1 — source side.
-        // Produces JSON-shaped records so the REST proxy can parse key + value.
-        // Period is 3000 ms; 3 records arrive in ~9 s.
+        // Produces "test counter + N" to timer-topic every 3 s.
+        // The Simple expression is evaluated at runtime by Camel on each tick.
         KubeResourceManager.get().createResourceWithWait(
                 KafkaConnectorTemplates.kafkaConnector(testStorage.getNamespaceName(),
                         "timer-connector", testStorage.getClusterName())
@@ -424,10 +472,11 @@ class CamelConnectST extends AbstractST {
                             .withTasksMax(1)
                             .withConfig(Map.of(
                                     "topics", timerTopic,
-                                    "key.converter", "org.apache.kafka.connect.storage.StringConverter",
-                                    "value.converter", "org.apache.kafka.connect.storage.StringConverter",
-                                    "camel.kamelet.timer-source.message",
-                                            "{\"key\":\"camel\",\"value\":\"hello from timer\"}",
+                                    "key.converter",
+                                        "org.apache.kafka.connect.storage.StringConverter",
+                                    "value.converter",
+                                        "org.apache.kafka.connect.storage.StringConverter",
+                                    "camel.kamelet.timer-source.message", TIMER_MESSAGE_TEMPLATE,
                                     "camel.kamelet.timer-source.period", "3000"
                             ))
                         .endSpec()
@@ -436,9 +485,11 @@ class CamelConnectST extends AbstractST {
 
         // Connector 2 — sink side.
         // Reads each record from timer-topic and POSTs its value to the REST proxy.
-        // authenticationPreemptive=true means the Authorization header is sent on
-        // the very first request without waiting for a 401 challenge — required
-        // because our REST proxy does not issue a WWW-Authenticate challenge.
+        // The Kamelet sends no Content-Type header; ProduceResource treats the raw
+        // body as the record value (fixed in our custom Kafka fork).
+        // authenticationPreemptive=true: Authorization header is sent on the first
+        // request without waiting for a 401 challenge — required because our REST
+        // proxy does not issue a WWW-Authenticate challenge.
         KubeResourceManager.get().createResourceWithWait(
                 KafkaConnectorTemplates.kafkaConnector(testStorage.getNamespaceName(),
                         "http-secured-sink-connector", testStorage.getClusterName())
@@ -447,8 +498,10 @@ class CamelConnectST extends AbstractST {
                             .withTasksMax(1)
                             .withConfig(Map.of(
                                     "topics", timerTopic,
-                                    "key.converter", "org.apache.kafka.connect.storage.StringConverter",
-                                    "value.converter", "org.apache.kafka.connect.storage.StringConverter",
+                                    "key.converter",
+                                        "org.apache.kafka.connect.storage.StringConverter",
+                                    "value.converter",
+                                        "org.apache.kafka.connect.storage.StringConverter",
                                     "camel.kamelet.http-secured-sink.url", restProxyUrl,
                                     "camel.kamelet.http-secured-sink.method", "POST",
                                     "camel.kamelet.http-secured-sink.authMethod", "Basic",
@@ -461,13 +514,15 @@ class CamelConnectST extends AbstractST {
         );
 
         KafkaConnectorUtils.waitForConnectorReady(testStorage.getNamespaceName(), "timer-connector");
-        KafkaConnectorUtils.waitForConnectorReady(testStorage.getNamespaceName(), "http-secured-sink-connector");
+        KafkaConnectorUtils.waitForConnectorReady(testStorage.getNamespaceName(),
+                "http-secured-sink-connector");
 
-        // Consume from demo-topic — this is the final destination after the REST proxy.
-        // If 3 records arrive here, the full pipeline is verified:
-        //   timer-source produced → timer-topic held → http-secured-sink forwarded
-        //   → REST proxy authenticated and wrote → demo-topic received.
-        // Timeout is 120 s (longer than the source-only tests) because the pipeline
+        // Consume from demo-topic — the final destination after the REST proxy.
+        // If 3 records arrive here with values "test counter + 1/2/3", the full
+        // pipeline is verified:
+        //   timer fired → timer-topic held the record → sink forwarded via HTTP POST
+        //   → REST proxy authenticated + wrote → demo-topic received.
+        // 120 s timeout: longer than the source-only tests because the pipeline
         // has two connector hops plus an HTTP round-trip before records land here.
         KafkaClients kafkaClients = new KafkaClientsBuilder()
                 .withBootstrapAddress("my-cluster-kafka-bootstrap.kafka.svc:9092")
@@ -481,7 +536,9 @@ class CamelConnectST extends AbstractST {
         ClientUtils.waitForClientSuccess(testStorage.getNamespaceName(),
                 kafkaClients.getConsumerName(), 3, 120_000);
 
-        LOGGER.info("Full e2e pipeline verified: timer-topic -> http-secured-sink -> REST proxy -> demo-topic");
+        LOGGER.info("Full e2e pipeline verified: "
+                + "timer-source -> timer-topic -> http-secured-sink "
+                + "-> REST proxy -> demo-topic (values: \"test counter + N\")");
     }
 
     @BeforeAll
