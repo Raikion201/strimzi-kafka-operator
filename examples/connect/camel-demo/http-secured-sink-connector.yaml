@@ -9,7 +9,9 @@ spec:
   class: org.apache.camel.kafkaconnector.httpsecuredsink.CamelHttpsecuredsinkSinkConnector
   tasksMax: 1
   config:
-    topics: timer-topic
+    # counter-source produces sequential integers (1, 2, 3...) to counter-topic.
+    # The sink forwards each integer as a raw POST body to the REST proxy.
+    topics: counter-topic
     key.converter: org.apache.kafka.connect.storage.StringConverter
     value.converter: org.apache.kafka.connect.storage.StringConverter
     camel.kamelet.http-secured-sink.url: "http://my-cluster-kafka-rest-bootstrap:9095/v1/topics/demo-topic"

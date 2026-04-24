@@ -12,9 +12,5 @@ spec:
     topics: timer-topic
     key.converter: org.apache.kafka.connect.storage.StringConverter
     value.converter: org.apache.kafka.connect.storage.StringConverter
-    # CamelTimerCounter is a built-in Camel exchange property that increments
-    # by 1 on every timer tick (1, 2, 3...). The message parameter is evaluated
-    # as a Camel Simple expression at runtime, so this produces:
-    #   "test counter + 1", "test counter + 2", "test counter + 3", ...
-    camel.kamelet.timer-source.message: "test counter + ${exchangeProperty.CamelTimerCounter}"
+    camel.kamelet.timer-source.message: "hello from timer"
     camel.kamelet.timer-source.period: 3000
