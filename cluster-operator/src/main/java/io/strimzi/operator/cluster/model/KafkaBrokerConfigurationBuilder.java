@@ -288,6 +288,11 @@ public class KafkaBrokerConfigurationBuilder {
                     printSectionHeader("REST proxy listener configuration: " + wireName);
                     HttpListenerConfigurer.configure(listeners, listener);
 
+                    // Schema registry persists registrations to this compacted topic.
+                    // cleanup.policy=compact is set by the operator when it creates the topic.
+                    writer.println("http.schema.registry.storage.topic=_schemas");
+                    writer.println();
+
                     if (HttpListenerTypeSupport.isHttps(listener)) {
                         CertAndKeySecretSource customServerCert = null;
                         if (listener.getConfiguration() != null) {

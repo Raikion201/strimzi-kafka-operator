@@ -1965,4 +1965,21 @@ public class KafkaBrokerConfigurationBuilderTest {
                 "auto.create.topics.enable=false",
                 "offsets.topic.replication.factor=3"));
     }
+
+    @Test
+    public void testHttpListenerInjectsSchemaRegistryStorageTopic() {
+        GenericKafkaListener http = new GenericKafkaListenerBuilder()
+                .withName("rest")
+                .withPort(9095)
+                .withType(KafkaListenerType.HTTP)
+                .withTls(false)
+                .build();
+
+        String configuration = new KafkaBrokerConfigurationBuilder(Reconciliation.DUMMY_RECONCILIATION, NODE_REF)
+                .withListeners("my-cluster", "my-namespace", singletonList(http), null, null)
+                .build();
+
+        assertThat("HTTP listener must inject schema registry storage topic",
+                configuration, containsString("http.schema.registry.storage.topic=_schemas"));
+    }
 }
